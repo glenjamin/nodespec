@@ -1,0 +1,26 @@
+{ "name": "nodespec"
+, "description": "A light-weight RSpec-esque testing framework"
+, "homepage": "https://github.com/glenjamin/nodespec"
+, "author": "Glen Mailer <glenjamin@gmail.com>"
+
+, "private": true
+, "version": "0.0.0dev"
+, "engines": { "node": ">= 0.4.6" }
+
+, "main": "./lib/index.js"
+, "bin": "./bin/nodespec"
+, "directories":
+  { "lib": "./lib"
+  , "bin": "./bin"
+  , "doc": "./doc"}
+
+, "repository":
+  { "type": "git"
+  , "url": "http://github.com/glenjamin/nodespec.git"
+  }
+, "licenses":
+  [ { "type" : "MIT"
+    , "url" : "http://github.com/glenjamin/nodespec/master/LICENSE"
+    }
+  ]
+}
