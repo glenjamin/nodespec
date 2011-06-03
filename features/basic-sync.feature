@@ -66,3 +66,18 @@ Scenario: Single pending spec
     When I run `node basic-spec.js`
     Then the exit status should be 0
     And the output should contain "1 pending"
+
+Scenario: Single erroring spec
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Addition", function() {
+        this.example("1 + 1 = 2", function() {
+            a = b + c;
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "1 errored"
