@@ -6,14 +6,16 @@
 , "private": true
 , "version": "0.0.0dev"
 , "engines": { "node": ">= 0.4.6" }
-
+, "dependencies":
+  { "async" : "0.1.x"
+  }
 , "main": "./lib/index.js"
 , "bin": "./bin/nodespec"
 , "directories":
   { "lib": "./lib"
   , "bin": "./bin"
-  , "doc": "./doc"}
-
+  , "doc": "./doc"
+  }
 , "repository":
   { "type": "git"
   , "url": "http://github.com/glenjamin/nodespec.git"
