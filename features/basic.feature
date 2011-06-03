@@ -15,6 +15,7 @@ Scenario: Single passing synchronous spec
             return true;
         });
     });
+    nodespec.exec();
     """
     When I run `node basic-spec.js`
     Then the exit status should be 0
@@ -31,6 +32,7 @@ Scenario: Single failing synchronous spec
             return true;
         });
     });
+    nodespec.exec();
     """
     When I run `node basic-spec.js`
     Then the exit status should be 1
