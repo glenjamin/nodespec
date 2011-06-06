@@ -58,3 +58,85 @@ Scenario: Single failing spec
     When I run `node basic-spec.js`
     Then the exit status should be 1
     And the output should contain "1 failed"
+
+Scenario: Single pending spec
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    var calc = require('./calc');
+    nodespec.describe("Addition", function() {
+        this.example("2 + ? = 5", function(test) {
+            calc.calculate("2 + 3", function(err, result) {
+                test.pending("For some reason");
+                test.assert.strictEqual(result, 5);
+                test.done(err);
+            });
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 0
+    And the output should contain "1 pending"
+
+
+Scenario: Single erroring spec
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    var calc = require('./calc');
+    nodespec.describe("Addition", function() {
+        this.example("2 + ? = 5", function(test) {
+            calc.calculate("2 + ? = 5", function(err, result) {
+                this.assert.strictEqual(result, 3);
+                test.done(err);
+            });
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "1 errored"
+
+Scenario: Multiple specs with various results
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    var calc = require('./calc');
+    nodespec.describe("Addition", function() {
+        this.example("1 + 1 = 2", function(test) {
+            calc.calculate("1 + 1", function(err, result) {
+                test.assert.strictEqual(result, 2);
+                test.done();
+            });
+        });
+        this.example("2 + 2 = 5", function(test) {
+            calc.calculate("2 + 2", function(err, result) {
+                test.assert.strictEqual(result, 5);
+                test.done(err);
+            });
+        });
+        this.example("2 + ? = 5", function(test) {
+            calc.calculate("2 + 3", function(err, result) {
+                test.pending("For some reason");
+                test.assert.strictEqual(result, 5);
+                test.done(err);
+            });
+        });
+        this.example("2 + ? = 5", function(test) {
+            calc.calculate("2 + ? = 5", function(err, result) {
+                this.assert.strictEqual(result, 3);
+                test.done(err);
+            });
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "4 specs"
+    And the output should contain "1 passed"
+    And the output should contain "1 failed"
+    And the output should contain "1 pending"
+    And the output should contain "1 errored"
