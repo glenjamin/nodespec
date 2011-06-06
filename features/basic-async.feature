@@ -28,7 +28,7 @@ Scenario: Single passing spec
     nodespec.describe("Addition", function() {
         this.example("1 + 1 = 2", function(test) {
             calc.calculate("1 + 1", function(err, result) {
-                test.assertStrictEqual(result, 2);
+                test.assert.strictEqual(result, 2);
                 test.done();
             });
         });
@@ -48,8 +48,8 @@ Scenario: Single failing spec
     nodespec.describe("Addition", function() {
         this.example("2 + 2 = 5", function(test) {
             calc.calculate("2 + 2", function(err, result) {
-                test.assertStrictEqual(result, 5);
-                test.done();
+                test.assert.strictEqual(result, 5);
+                test.done(err);
             });
         });
     });

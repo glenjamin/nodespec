@@ -3,6 +3,7 @@ Feature: Basic synchronous testing functionality
     I want to: Describe and run simple synchronous unit tests
     So that: I can verify software behaviour
 
+
 Scenario: Single passing spec
     Given a file named "basic-spec.js" with:
     """
