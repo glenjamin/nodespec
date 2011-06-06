@@ -1,6 +1,6 @@
 Feature: Basic synchronous testing functionality
     As a: software developer
-    I want to: Describe my unit tests
+    I want to: Describe and run simple synchronous unit tests
     So that: I can verify software behaviour
 
 Scenario: Single passing spec
@@ -80,4 +80,32 @@ Scenario: Single erroring spec
     """
     When I run `node basic-spec.js`
     Then the exit status should be 2
+    And the output should contain "1 errored"
+
+Scenario: Multiple specs with various results
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Addition", function() {
+        this.example("1 + 1 = 2", function() {
+            this.assert.equal(1 + 1, 2);
+            return true;
+        });
+        this.example("2 + 2 = 5", function() {
+            this.assert.equal(2 + 2, 5);
+            return true;
+        });
+        this.example("1 + ? = 2");
+        this.example("1 + 1 = 2", function() {
+            a = b + c;
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "4 specs"
+    And the output should contain "1 passed"
+    And the output should contain "1 failed"
+    And the output should contain "1 pending"
     And the output should contain "1 errored"
