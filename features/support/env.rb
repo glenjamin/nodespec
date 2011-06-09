@@ -11,3 +11,7 @@ Before do
 
   ENV['NODE_PATH'] = root_path << File::PATH_SEPARATOR << ENV['NODE_PATH']
 end
+
+Before '@slow' do
+  @aruba_timeout_seconds = 10
+end
