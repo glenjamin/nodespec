@@ -2,8 +2,6 @@
 NodeSpec
 ========
 
-NOTE: This library is currently un-implemented!
-
 A light-weight RSpec_-esque testing framework designed and built
 specifically for NodeJS.
 
@@ -11,51 +9,28 @@ specifically for NodeJS.
 
 .. contents:: :local:
 
-Rationale
-=========
-
-There are many existing frameworks for NodeJS already out there, but none
-of them quite did what I was looking for. Some were originally built pre-node,
-and thus their node support was somewhat "bolted-on", while others seemed to
-get a bit carried away with the whole asynchronous nature a little bit.
-
-My complaints can be summarised as:
-
- *  Running tests asynchronously isn't particularly useful
-    (if you try and use mocks it can even be harmful)
-
- *  Not being able to test asynchronous code is even less useful
-
-Goals
-=====
-
- *  Ground-up support for NodeJS convention callbacks
- *  Only one test running at a time
- *  **No global variables**
- *  RSpec style nested contexts
- *  Easy to use and read setup/teardown functions
- *  Pluggable mocking support
- *  Native assertions, or pluggable replacements/extensions
- *  Multiple output formatters on the same test run
-
-Why not X?
-==========
-
-Vows
-  Vows only evaluates the topic once, and then runs all the vows and
-  sub-contexts against the initial topic. Which is fine for integration
-  testing but doesn't work well with mocking.
-
-nodeunit
-  Nodeunit actually satisfies most of the criteria above, except it doesn't
-  have RSpec-style nested contexts. If I didn't have to urge to roll my own,
-  nodeunit is what I'd be using.
-
 Features
 ========
 
-Currently there are none, as there isn't any code.
-See Development_ for why this file exists.
+ *  Ground-up support for NodeJS convention callbacks
+
+ *  Only one test running at a time
+
+ *  **No global variables**
+
+ *  RSpec style syntactic sugar
+
+    *  Nested contexts **(not yet implemented)**
+    *  Easy to use setup/teardown
+    *  Subject helpers **(not yet implemented)**
+
+ *  Pluggable mocking support **(not yet implemented)**
+
+ *  Native assertions
+
+ *  Easy to extend or replace the default assertions **(not yet implemented)**
+
+ *  Multiple output formatters on the same test run **(not yet implemented)**
 
 Development
 ===========
@@ -76,6 +51,19 @@ Lots and lots of Unit Tests
 .. _`cucumber`: http://cukes.info/
 .. _`aruba`: https://github.com/cucumber/aruba
 
+If you'd like to contribute
+
+ 1.  Fork the repository on github
+ 2.  Make your changes
+ 3.  Run the unit tests
+ 4.  Run the cucumber tests with `cucumber -p all`
+ 5.  Push back to github and send me a pull request
+
+If you're fixing a bug, please add a testcase to prove it was broken and is fixed,
+if you're adding a new feature, please add cucumber feature file for it.
+
+To be able to run cucumber, you'll need Ruby and Bundler installed, then do `bundle install`.
+
 Installation
 ============
 
@@ -85,14 +73,22 @@ For the moment just install via github tarball::
 
     npm install https://github.com/glenjamin/nodespec/tarball/master
 
+Or clone directly from github::
+
+    git clone git://github.com/glenjamin/nodespec
+    cd nodespec
+    npm link
+
 Usage
 =====
-
-NOTE: Exact syntax is currently in flux, It should be established by v0.1.0
 
 Require the module into test files to use it::
 
     var nodespec = require('nodespec');
+
+And then at the end of each test file::
+
+    nodespec.exec();
 
 Simple spec::
 
@@ -141,6 +137,42 @@ Before/After Hooks::
                 test.assert.strictEqual(result.affected, 1);
                 test.db.get(function(err, result) {
                     test.assert.strictEqual(result.field, 1);
+                    test.done();
+                });
+            });
+        });
+    });
+
+Nested contexts with subject::
+
+    nodespec.describe("My Server", function() {
+        // This function is executed once when `this.server` is accessed
+        this.subject('server', function() {
+            return new Server(1337);
+        });
+        this.context("Strict Mode", function() {
+            this.before(function() {
+                this.server.use_strict_mode();
+                this.done();
+            });
+            this.example("invalid request fails", function(test) {
+                test.expect(1);
+                test.server.request('invalid', function(err, result) {
+                    test.assert.notEqual(err, null);
+                    test.done();
+                });
+            });
+        });
+        this.context("Not Strict Mode", function() {
+            this.before(function() {
+                this.server.dont_use_strict_mode();
+                this.done();
+            });
+            this.example("invalid request fails silently", function(test) {
+                test.expect(2);
+                test.server.request('invalid', function(err, result) {
+                    test.assert.equal(err, null);
+                    test.assert.equal(result, null);
                     test.done();
                 });
             });
