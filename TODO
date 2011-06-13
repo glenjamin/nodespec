@@ -1,5 +1,5 @@
 Nested contexts
-  - Refactor Result to have SingleResult class, and one method for add/merge
+  - SingleResult factory methods
   - ExampleGroup.describe and .context to declare subgroups
   - Also support running hooks defined in parents
 Evented output formatters
@@ -11,4 +11,3 @@ Subjects
 Unit test existing code
 Helpers - needed given that we have closures?
 Configurable hook timeouts
-
