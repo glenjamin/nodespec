@@ -7,9 +7,9 @@ Before do
   root_path = File.expand_path('../../..', __FILE__)
 
   bin_path = File.expand_path('bin', root_path)
-  ENV['PATH'] = bin_path << File::PATH_SEPARATOR << ENV['PATH']
+  ENV['PATH'] = bin_path << File::PATH_SEPARATOR << ENV['PATH'].to_s
 
-  ENV['NODE_PATH'] = root_path << File::PATH_SEPARATOR << ENV['NODE_PATH']
+  ENV['NODE_PATH'] = root_path << File::PATH_SEPARATOR << ENV['NODE_PATH'].to_s
 
   if ENV['announce']
     @announce_stdout = true
