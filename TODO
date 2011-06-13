@@ -1,4 +1,14 @@
 Nested contexts
-Subjects
-Helpers
+  - Refactor Result to have SingleResult class, and one method for add/merge
+  - ExampleGroup.describe and .context to declare subgroups
+  - Also support running hooks defined in parents
 Evented output formatters
+  - Formatter.connect(EventEmitter)
+  - Fire off events as the test suite runs
+  - Implement progress formatter
+  - Implement documentation formatter
+Subjects
+Unit test existing code
+Helpers - needed given that we have closures?
+Configurable hook timeouts
+
