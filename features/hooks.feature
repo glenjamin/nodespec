@@ -60,33 +60,34 @@ Scenario: Tearing down with after, not async
     Then the exit status should be 0
     And the output should contain "3 passed"
 
-Scenario: Context is reset for each test
+
+Scenario: Setting up and tearing down with async code
     Given a file named "basic-spec.js" with:
     """
     var nodespec = require('nodespec');
-    nodespec.describe("Hook behaviour", function() {
-        this.before(function() {
-            if (!this.mutable)
-                this.mutable = [];
-            this.mutable.push(1);
-            return false;
+    var outside = 1;
+    nodespec.describe("Async Hook behaviour", function() {
+        this.before(function(hook) {
+            process.nextTick(function() {
+                hook.variable = 1;
+                hook.done();
+            });
         });
-        this.after(function() {
-            this.mutable.push(3);
-            return false;
-        });
-        this.example("Clean first time around", function() {
-            this.mutable.push(2);
-            this.assert.equal(this.mutable.length, 2);
-            this.assert.equal(this.mutable[0], 1);
-            this.assert.equal(this.mutable[1], 2);
+        this.after(function(hook) {
+            process.nextTick(function() {
+                outside = 2;
+                hook.done();
+            })
+        })
+        this.example("Before run, but after isnt", function() {
+            this.assert.strictEqual(outside, 1);
+            this.assert.strictEqual(this.variable, 1);
+            this.variable = 2;
             this.done();
         });
-        this.example("And fresh the second time", function() {
-            this.mutable.push(2);
-            this.assert.equal(this.mutable.length, 2);
-            this.assert.equal(this.mutable[0], 1);
-            this.assert.equal(this.mutable[1], 2);
+        this.example("After has been run by now", function() {
+            this.assert.strictEqual(outside, 2);
+            this.assert.strictEqual(this.variable, 1);
             this.done();
         });
     });
@@ -96,30 +97,50 @@ Scenario: Context is reset for each test
     Then the exit status should be 0
     And the output should contain "2 passed"
 
-@announce
-Scenario: Setting up with before, async
+Scenario: Failure in block
     Given a file named "basic-spec.js" with:
     """
     var nodespec = require('nodespec');
-    nodespec.describe("Async Hook behaviour", function() {
-        this.before(function(hook) {
-            process.nextTick(function() {
-                hook.variable = 1;
-                hook.done();
-            });
-        });
-        this.example("Variable is shared with hook", function() {
-            this.assert.strictEqual(this.variable, 1);
-            this.variable = 2;
+    nodespec.describe("Hook behaviour", function() {
+        this.before(function() {
+            this.assert.equal(1, 2);
             this.done();
         });
-        this.example("And hook is run each time", function() {
-            this.assert.strictEqual(this.variable, 1);
+        this.example("This example will be marked as failed, and not run", function() {
+            this.assert.strictEqual(1, 1);
+            this.done();
+        });
+        this.example("As will this one", function() {
+            this.assert.strictEqual(1, 1);
             this.done();
         });
     });
     nodespec.exec();
     """
     When I run `node basic-spec.js`
-    Then the exit status should be 0
-    And the output should contain "2 passed"
+    Then the exit status should be 1
+    And the output should contain "2 failed"
+
+Scenario: Error in block
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Hook behaviour", function() {
+        this.after(function() {
+            a + b = c
+            this.done();
+        });
+        this.example("This example will run, but error due to after", function() {
+            this.assert.strictEqual(1, 1);
+            this.done();
+        });
+        this.example("As will this one", function() {
+            this.assert.strictEqual(1, 1);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "2 errored"
