@@ -1,6 +1,3 @@
-Nested contexts
-  - ExampleGroup.describe and .context to declare subgroups
-  - Also support running hooks defined in parents
 Evented output formatters
   - Formatter.connect(EventEmitter)
   - Fire off events as the test suite runs
