@@ -1,5 +1,4 @@
 Evented output formatters
-  - Formatter.connect(EventEmitter)
   - Fire off events as the test suite runs
   - Implement progress formatter
   - Implement documentation formatter

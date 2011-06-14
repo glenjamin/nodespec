@@ -20,5 +20,5 @@ Scenario: Passing tests only
     And the output should contain exactly:
     """
     ....
-    4 Specs (4 Passed)
+    4 specs (4 passed)
     """
