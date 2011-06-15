@@ -204,9 +204,8 @@ Scenario: Failure in after hook
     """
     var nodespec = require('nodespec');
     nodespec.describe("Hook behaviour", function() {
-        var counter = 0;
         this.after(function() {
-            this.assert.equal(2, 4);
+            throw new Error('after errored');
             this.done();
         });
         this.example("passing example now fails", function() {
@@ -226,5 +225,33 @@ Scenario: Failure in after hook
     """
     When I run `node basic-spec.js`
     Then the exit status should be 2
-    And the output should contain "2 failed"
-    And the output should contain "1 errored"
+    And the output should contain "1 failed"
+    And the output should contain "2 errored"
+
+Scenario: After hooks are always run
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Hook behaviour", function() {
+        this.after(function() {
+            console.log('first after');
+            throw new Error('first cleanup action failed');
+            this.done();
+        });
+        this.after(function() {
+            console.log('second after');
+            throw new Error('second cleanup action failed');
+            this.done();
+        });
+        this.example("failing example", function() {
+            this.assert.strictEqual(1, 2);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 1
+    And the output should contain "1 failed"
+    And the output should contain "first after"
+    And the output should contain "second after"
