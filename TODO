@@ -1,4 +1,4 @@
-Always run after hooks for teardown, even if test fails
+Make sure multiple after hooks all run regardless of failure
 Evented output formatters
   - Fire off events as the test suite runs
   - Implement progress formatter

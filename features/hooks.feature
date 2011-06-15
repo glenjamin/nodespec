@@ -97,7 +97,7 @@ Scenario: Setting up and tearing down with async code
     Then the exit status should be 0
     And the output should contain "2 passed"
 
-Scenario: Failure in block
+Scenario: Failure in before block
     Given a file named "basic-spec.js" with:
     """
     var nodespec = require('nodespec');
@@ -121,16 +121,16 @@ Scenario: Failure in block
     Then the exit status should be 1
     And the output should contain "2 failed"
 
-Scenario: Error in block
+Scenario: Error in before block
     Given a file named "basic-spec.js" with:
     """
     var nodespec = require('nodespec');
     nodespec.describe("Hook behaviour", function() {
-        this.after(function() {
+        this.before(function() {
             a + b = c
             this.done();
         });
-        this.example("This example will run, but error due to after", function() {
+        this.example("This example will be marked as failed, and not run", function() {
             this.assert.strictEqual(1, 1);
             this.done();
         });
@@ -163,4 +163,68 @@ Scenario: done() not called in hook times out
     """
     When I run `node basic-spec.js`
     Then the exit status should be 2
+    And the output should contain "1 errored"
+
+Scenario: after hooks are called, regardless of test result
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Hook behaviour", function() {
+        var counter = 0;
+        this.after(function() {
+            console.log('after #'+ (++counter));
+            this.done();
+        });
+        this.example("passing example", function() {
+            this.assert.strictEqual(1, 1);
+            this.done();
+        });
+        this.example("failing example", function() {
+            this.assert.strictEqual(1, 2);
+            this.done();
+        });
+        this.example("erroring example", function() {
+            this.assert.strictEqual(a, b);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "1 passed"
+    And the output should contain "1 failed"
+    And the output should contain "1 errored"
+    And the output should contain "after #1"
+    And the output should contain "after #2"
+    And the output should contain "after #3"
+
+Scenario: Failure in after hook
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Hook behaviour", function() {
+        var counter = 0;
+        this.after(function() {
+            this.assert.equal(2, 4);
+            this.done();
+        });
+        this.example("passing example now fails", function() {
+            this.assert.strictEqual(1, 1);
+            this.done();
+        });
+        this.example("failing example fails with own failure", function() {
+            this.assert.strictEqual(1, 2);
+            this.done();
+        });
+        this.example("erroring example fails with own error", function() {
+            this.assert.strictEqual(a, b);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "2 failed"
     And the output should contain "1 errored"
