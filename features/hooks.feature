@@ -144,3 +144,23 @@ Scenario: Error in block
     When I run `node basic-spec.js`
     Then the exit status should be 2
     And the output should contain "2 errored"
+
+@slow
+Scenario: done() not called in hook times out
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Hook behaviour", function() {
+        this.before(function() {
+            this.stuff = 1
+        });
+        this.example("This example will not run", function() {
+            this.assert.strictEqual(1, 1);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "1 errored"

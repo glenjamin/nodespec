@@ -157,8 +157,8 @@ Scenario: Done is never called
     nodespec.exec();
     """
     When I run `node basic-spec.js`
-    Then the exit status should be 1
-    And the output should contain "1 failed"
+    Then the exit status should be 2
+    And the output should contain "1 errored"
 
 @slow
 Scenario: Done is called before we stop waiting
@@ -195,8 +195,8 @@ Scenario: Done is called after default timeout
     nodespec.exec();
     """
     When I run `node basic-spec.js`
-    Then the exit status should be 1
-    And the output should contain "1 failed"
+    Then the exit status should be 2
+    And the output should contain "1 errored"
 
 Scenario: Done is never called (short timeout)
     Given a file named "basic-spec.js" with:
@@ -213,8 +213,8 @@ Scenario: Done is never called (short timeout)
     nodespec.exec();
     """
     When I run `node basic-spec.js`
-    Then the exit status should be 1
-    And the output should contain "1 failed"
+    Then the exit status should be 2
+    And the output should contain "1 errored"
 
 Scenario: Done is called too late (short timeout)
     Given a file named "basic-spec.js" with:
@@ -231,5 +231,5 @@ Scenario: Done is called too late (short timeout)
     nodespec.exec();
     """
     When I run `node basic-spec.js`
-    Then the exit status should be 1
-    And the output should contain "1 failed"
+    Then the exit status should be 2
+    And the output should contain "1 errored"
