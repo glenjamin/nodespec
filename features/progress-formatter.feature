@@ -80,3 +80,35 @@ Scenario: Some failing tests
            But with a custom message
     """
     And the output should contain "6 specs (2 passed, 4 failed)"
+
+Scenario: Some pending tests
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Dummy Tests", function() {
+        this.example("Test 1", function() { this.done(); });
+        this.example("Test 2", function() { this.done(); });
+        this.example("Test 3");
+        this.example("Test 4", function() {
+            this.pending("For this reason");
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js -f progress`
+    Then the exit status should be 0
+    And the output should contain "..**"
+    And the output should contain:
+    """
+    Pending:
+
+      1) Dummy Tests Test 3
+         // ./basic-spec.js:5
+           <unimplemented>
+
+      2) Dummy Tests Test 4
+         // ./basic-spec.js:7
+           For this reason
+    """
+    And the output should contain "4 specs (2 passed, 2 pending)"
