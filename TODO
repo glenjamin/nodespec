@@ -1,8 +1,11 @@
-Evented output formatters
-  - Fire off events as the test suite runs
-  - Implement progress formatter
-  - Implement documentation formatter
+Add timings to test run output - how to cuke test?
 Subjects
+Running multiple files
 Unit test existing code
-Helpers - needed given that we have closures?
 Configurable hook timeouts
+Proper commandline runner
+Update documentation
+v0.1
+Implement documentation style formatter (including base formatter class)
+Helpers - needed given that we have closures?
+

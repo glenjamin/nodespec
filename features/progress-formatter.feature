@@ -112,3 +112,55 @@ Scenario: Some pending tests
            For this reason
     """
     And the output should contain "4 specs (2 passed, 2 pending)"
+
+Scenario: Some errored tests
+    Given a file named "lib.js" with:
+    """
+    exports.fail_async = function(callback) {
+        callback(new CustomError("failing function"));
+    }
+    require('util').inherits(CustomError, Error);
+    function CustomError(msg){
+        this.name = 'CustomError';
+        this.message = msg;
+        Error.captureStackTrace(this, CustomError);
+    }
+    """
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    var lib = require('./lib');
+    nodespec.describe("Dummy Tests", function() {
+        this.example("Test 1", function() {
+            a + b
+        });
+        this.example("Test 2", function() {
+            this.done();
+        });
+        this.example("Test 3", function() {
+            lib.fail_async(this.done);
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js -f progress`
+    Then the exit status should be 2
+    And the output should contain "E.E"
+    And the output should contain:
+    """
+    Errors:
+
+      1) Dummy Tests Test 1
+         // ./basic-spec.js:5
+         a + b
+           ReferenceError: a is not defined
+           at Context.<anonymous> (./basic-spec.js:5:9)
+
+      2) Dummy Tests Test 3
+         // ./basic-spec.js:11
+         lib.fail_async(this.done);
+           CustomError: failing function
+           at Object.fail_async (./lib.js:2:14)
+           at Context.<anonymous> (./basic-spec.js:11:13)
+    """
+    And the output should contain "3 specs (1 passed, 2 errored)"
