@@ -4,3 +4,6 @@ Rakefile
 tmp
 features
 node_modules
+cucumber.yml
+TODO
+documentation
