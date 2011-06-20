@@ -20,7 +20,7 @@ Scenario: Passing tests only
     And the output should contain:
     """
     ....
-    
+
     4 specs (4 passed)
     """
 
@@ -72,7 +72,6 @@ Scenario: Some failing tests
 
       3) Dummy Tests Test 5
          // ./basic-spec.js:13
-         <thrown from nodespec>
            Expected 1 assertions but got 0
 
       4) Dummy Tests Test 6
