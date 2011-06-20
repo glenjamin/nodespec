@@ -20,6 +20,7 @@ Scenario: Passing tests only
     And the output should contain:
     """
     ....
+    
     4 specs (4 passed)
     """
 
@@ -182,3 +183,55 @@ Scenario: Test timing is handled by the formatter
     Then the exit status should be 0
     And the output should contain "1 spec (1 passed)"
     And the output should match /Time Taken: 3\.\d+s/
+
+@ansi
+Scenario: Everything, including colour
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Progress Formatter Output", function() {
+        this.example("Passing Test", function() {
+            this.done();
+        });
+        this.example("Failing Test", function() {
+            this.assert.equal(true, false);
+            this.done();
+        });
+        this.example("Pending Test");
+        this.example("Errored Test", function() {
+            throw new Error("Whoops!");
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js -f progress`
+    Then the exit status should be 2
+    And the output should contain:
+    """
+    [32m.[31mF[33m*[36mE[39m
+
+    [33mPending:[39m
+
+    [33m  1) Progress Formatter Output Pending Test[39m
+    [33m     // ./basic-spec.js:10[39m
+    [33m       <unimplemented>[39m
+
+    [31mFailures:[39m
+
+    [31m  1) Progress Formatter Output Failing Test[39m
+    [31m     // ./basic-spec.js:7[39m
+    [31m     this.assert.equal(true, false);[39m
+    [31m       expected: false[39m
+    [31m            got: true[39m
+
+    [36mErrors:[39m
+
+    [36m  1) Progress Formatter Output Errored Test[39m
+    [36m     // ./basic-spec.js:12[39m
+    [36m     throw new Error("Whoops!");[39m
+    [36m     Error: Whoops![39m
+    [36m       at Context.<anonymous> (./basic-spec.js:12:15)[39m
+
+    4 specs ([32m1 passed[39m, [33m1 pending[39m, [31m1 failed[39m, [36m1 errored[39m)
+    """

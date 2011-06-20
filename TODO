@@ -3,6 +3,7 @@ Running multiple files
 Unit test existing code
 Configurable hook timeouts
 Proper commandline runner
+Allow forcing colour on/off (detect support?)
 Update documentation
 v0.1
 Implement documentation style formatter (including base formatter class)
