@@ -17,7 +17,7 @@ Scenario: Passing tests only
     """
     When I run `node basic-spec.js -f progress`
     Then the exit status should be 0
-    And the output should contain exactly:
+    And the output should contain:
     """
     ....
     4 specs (4 passed)
@@ -153,14 +153,32 @@ Scenario: Some errored tests
       1) Dummy Tests Test 1
          // ./basic-spec.js:5
          a + b
-           ReferenceError: a is not defined
+         ReferenceError: a is not defined
            at Context.<anonymous> (./basic-spec.js:5:9)
 
       2) Dummy Tests Test 3
          // ./basic-spec.js:11
          lib.fail_async(this.done);
-           CustomError: failing function
+         CustomError: failing function
            at Object.fail_async (./lib.js:2:14)
            at Context.<anonymous> (./basic-spec.js:11:13)
     """
     And the output should contain "3 specs (1 passed, 2 errored)"
+
+@slow
+Scenario: Test timing is handled by the formatter
+    # This test implicitly asserts that the framework doens't add a whole second
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Dummy Tests", function() {
+        this.example("3 second test", function() {
+            setTimeout(this.done, 3000);
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js -f progress`
+    Then the exit status should be 0
+    And the output should contain "1 spec (1 passed)"
+    And the output should match /Time Taken: 3\.\d+s/

@@ -1,4 +1,3 @@
-Add timings to test run output - how to cuke test?
 Subjects
 Running multiple files
 Unit test existing code
@@ -8,4 +7,3 @@ Update documentation
 v0.1
 Implement documentation style formatter (including base formatter class)
 Helpers - needed given that we have closures?
-
