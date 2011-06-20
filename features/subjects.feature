@@ -27,3 +27,30 @@ Scenario: Un-named subject
     When I run `node basic-spec.js`
     Then the exit status should be 0
     And the output should contain "2 passed"
+
+Scenario: Named subjects
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec')
+    nodespec.describe("Context with subject", function() {
+        this.subject("left", function() {
+            return [1, 2];
+        });
+        this.subject("right", function() {
+            return this.left.concat([3]);
+        });
+        this.example("All subjects available", function() {
+            this.assert.equal(this.left.length, 2);
+            this.assert.equal(this.left[0], 1);
+            this.assert.equal(this.right.length, 3);
+            this.assert.equal(this.right[0], 1);
+            this.left[0] = 2;
+            this.assert.equal(this.right[0], 1);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 0
+    And the output should contain "1 passed"
