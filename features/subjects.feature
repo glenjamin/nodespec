@@ -54,3 +54,33 @@ Scenario: Named subjects
     When I run `node basic-spec.js`
     Then the exit status should be 0
     And the output should contain "1 passed"
+
+Scenario: Nesting subjects
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec')
+    nodespec.describe("Context with subject", function() {
+        this.subject(function() {
+            return new Error();
+        });
+        this.context("Subject unchanged", function() {
+            this.example("message is empty", function() {
+                this.assert.equal(this.subject.message, "");
+                this.done();
+            });
+        });
+        this.context("Subject replaced", function() {
+            this.subject(function() {
+                return new Error("message");
+            });
+            this.example("message is 'message'", function() {
+                this.assert.equal(this.subject.message, "message");
+                this.done();
+            });
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 0
+    And the output should contain "2 passed"
