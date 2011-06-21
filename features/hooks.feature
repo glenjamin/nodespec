@@ -255,3 +255,32 @@ Scenario: After hooks are always run
     And the output should contain "1 failed"
     And the output should contain "first after"
     And the output should contain "second after"
+
+Scenario: Global hooks
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.before(function() {
+        this.something = [1];
+        this.done();
+    });
+    var a = 1;
+    nodespec.after(function() {
+        a += 1;
+        this.done();
+    });
+    nodespec.describe("Global hooks", function() {
+        this.example("are run with every test", function() {
+            this.assert.equal(this.something.length, 1);
+            this.done();
+        });
+        this.example("including after hooks", function() {
+            this.assert.equal(a, 2);
+            this.done();
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 0
+    And the output should contain "2 passed"

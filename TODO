@@ -1,3 +1,4 @@
+Pluggable mocking support
 Unit test existing code
 Configurable hook timeouts
 Proper commandline runner
