@@ -33,6 +33,37 @@ Scenario: Using the sandbox for spies
     And the output should contain "1 passed"
     And the output should contain "1 failed"
 
+Scenario: Using the sandbox for mocks - automatically verified
+    Given a file named "sinon-spec.js" with:
+    """
+    var nodespec = require("nodespec");
+    nodespec.mockWith("sinon");
+    nodespec.describe("Sinon sandbox", function() {
+        this.describe("Mocks", function() {
+            this.subject(function() {
+                return { method: function() {} };
+            });
+            this.example("pass", function() {
+                var mock = this.sinon.mock(this.subject);
+                mock.expects("method").once().withArgs(1);
+                this.subject.method(1);
+                this.done();
+            });
+            this.example("fail", function() {
+                var mock = this.sinon.mock(this.subject);
+                mock.expects("method").once().withArgs(1);
+                this.subject.method(2);
+                this.done();
+            });
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node sinon-spec.js`
+    Then the exit status should be 1
+    And the output should contain "1 passed"
+    And the output should contain "1 failed"
+
 Scenario: Sinon assertions work with expect()
     Given a file named "sinon-spec.js" with:
     """
