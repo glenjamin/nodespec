@@ -5,9 +5,12 @@
 
 , "private": true
 , "version": "0.0.0dev"
-, "engines": { "node": ">= 0.4.6" }
+, "engines": { "node": ">= 0.4.8" }
 , "dependencies":
   { "async" : "0.1.x"
+  }
+, "devDependencies":
+  { "sinon" : "1.1.x"
   }
 , "main": "./lib/index.js"
 , "bin": "./bin/nodespec"
