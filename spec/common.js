@@ -1,3 +1,3 @@
-var nodespec = require('nodespec');
+var nodespec = require('../lib/index');
 
 module.exports = nodespec;
