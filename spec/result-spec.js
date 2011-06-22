@@ -62,49 +62,37 @@ nodespec.describe("Result", function() {
                 this.done();
             });
         });
-        this.context("with a pass", function() {
-            this.before(function() {
-               this.subject.add(SingleResult.PASS);
-               this.done();
-            });
-            this.example("should be 0", function() {
-                this.assert.strictEqual(this.subject.exit_code, 0);
-                this.done();
-            });
-        });
-        this.context("with a pend", function() {
-            this.before(function() {
-               this.subject.add(SingleResult.PEND);
-               this.done();
-            });
-            this.example("should be 0", function() {
-                this.assert.strictEqual(this.subject.exit_code, 0);
-                this.done();
-            });
-        });
-        this.context("with a fail", function() {
-            this.before(function() {
-               this.subject.add(SingleResult.FAIL);
-               this.done();
-            });
-            this.example("should be 1", function() {
-                this.assert.strictEqual(this.subject.exit_code, 1);
-                this.done();
-            });
-        });
-        this.context("with an error", function() {
-            this.before(function() {
-               this.subject.add(SingleResult.ERROR);
-               this.done();
-            });
-            this.example("should be 2", function() {
-                this.assert.strictEqual(this.subject.exit_code, 2);
-                this.done();
-            });
-        });
+        var describe_exit_code = result_exit_code_behaviour.bind(this);
+        describe_exit_code("PASS", 0);
+        describe_exit_code("PEND", 0);
+        describe_exit_code("FAIL", 1);
+        describe_exit_code("ERROR", 2);
+        describe_exit_code(["PASS", "FAIL"], 1);
+        describe_exit_code(["ERROR", "PASS"], 2);
     });
 });
 nodespec.exec();
+
+function result_exit_code_behaviour(type, i) {
+    if (Array.isArray(type)) {
+        var desc = type.map(function(s) {return s.toLowerCase()}).join(", ");
+    } else {
+        var desc = 'a '+type.toLowerCase();
+        type = [type];
+    }
+    this.context("with a "+desc, function() {
+        this.before(function(ctx) {
+            type.forEach(function(t) {
+                ctx.subject.add(SingleResult[t]);
+            });
+           ctx.done();
+        });
+        this.example("should be "+i, function() {
+            this.assert.strictEqual(this.subject.exit_code, i);
+            this.done();
+        });
+    });
+}
 
 function result_add_single_behaviour(type) {
     var down = type.toLowerCase();
