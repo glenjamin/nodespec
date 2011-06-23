@@ -115,14 +115,24 @@ nodespec.describe("Context", function() {
                               "Expected 4 assertions but got 0");
             this.done();
         });
-        this.example("assert is a reference to nodespec.assert", function() {
-            var real_assert = this.assert;
-            var fake_assert = new Object;
-            require('../lib/index').assert = fake_assert;
-            real_assert.strictEqual(this.context.assert, fake_assert);
-            require('../lib/index').assert = real_assert;
-            this.done();
-        });
+        this.context("fake assert object", function() {
+            this.subject("fake_assert", function() { return new Object; });
+            this.before(function(){
+                this.real_assert = nodespec.assert;
+                nodespec.assert = this.fake_assert;
+                this.done();
+            });
+            this.after(function() {
+                nodespec.assert = this.real_assert;
+                this.done();
+            });
+            this.example("assert references nodespec.assert", function() {
+                // Use native assert since the stub replaces this.assert too!
+                var assert = require('assert');
+                assert.strictEqual(this.context.assert, this.fake_assert);
+                this.done();
+            });
+        })
         this.example("no error when expected_assertions met", function() {
             this.context.expect(4);
             this.context.assert; this.context.assert;
