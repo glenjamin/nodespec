@@ -1,3 +1,6 @@
+** New method of detecting async support:
+  function.length == 0 => sync, set this = context
+  function.length == 1 => async, pass context, done() must be called
 Pluggable mocking support
 Better tests for not calling done
 Unit test existing code
