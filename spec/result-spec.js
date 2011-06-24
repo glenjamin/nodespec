@@ -13,7 +13,6 @@ nodespec.describe("Result", function() {
             this.assert.strictEqual(this.subject.fail, 0);
             this.assert.strictEqual(this.subject.error, 0);
             this.assert.strictEqual(this.subject.total, 0);
-            this.done();
         });
     });
     this.describe("add", function() {
@@ -48,7 +47,6 @@ nodespec.describe("Result", function() {
                 this.assert.strictEqual(this.result.fail,  4);
                 this.assert.strictEqual(this.result.error, 5);
                 this.assert.strictEqual(this.result.total, 14);
-                this.done();
             });
         });
     });
@@ -59,7 +57,6 @@ nodespec.describe("Result", function() {
         this.context("empty result", function() {
             this.example("should be 0", function() {
                 this.assert.strictEqual(this.subject.exit_code, 0);
-                this.done();
             });
         });
         var describe_exit_code = result_exit_code_behaviour.bind(this);
@@ -89,7 +86,6 @@ function result_exit_code_behaviour(type, i) {
         });
         this.example("should be "+i, function() {
             this.assert.strictEqual(this.subject.exit_code, i);
-            this.done();
         });
     });
 }
@@ -105,17 +101,14 @@ function result_add_single_behaviour(type) {
         });
         this.example("should increment "+down, function() {
             this.assert.strictEqual(this.subject[down], 1);
-            this.done();
         });
         this.example("should increment total", function() {
             this.assert.strictEqual(this.subject.total, 1);
-            this.done();
         });
         this.example("should not incremement others", function() {
             this.assert.strictEqual(this.subject[all[0]], 0);
             this.assert.strictEqual(this.subject[all[1]], 0);
             this.assert.strictEqual(this.subject[all[2]], 0);
-            this.done();
         });
     });
 }

@@ -1,13 +1,13 @@
-** New method of detecting async support:
-  function.length == 0 => sync, set this = context
-  function.length == 1 => async, pass context, done() must be called
-Pluggable mocking support
-Better tests for not calling done
 Unit test existing code
+Sinon Mock objecst (blocked until sinon updated to expose mock.fail)
+Better tests for not calling done
 Configurable hook timeouts
 Proper commandline runner
-Allow forcing colour on/off (detect support?)
-Update documentation
+Allow forcing colour on/off & detect support via isatty
+Full documentation
+  - getting started
+  - manual
+  - API?
 v0.1
 Implement documentation style formatter (including base formatter class)
 Helpers - needed given that we have closures?

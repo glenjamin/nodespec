@@ -1,31 +1,31 @@
 var nodespec = require('./common');
 
 var context = require('../lib/context');
+var target_nodespec = require('../lib/index');
 
 var Pending = require('../lib/exceptions').Pending,
     AssertionError = require('assert').AssertionError;
 
 nodespec.describe("Context", function() {
     this.subject("context", function() {
-        return new context.Context();
+        return new context.Context(target_nodespec);
     });
 
     this.describe("pending", function() {
         this.example("should raise Pending exception", function() {
             this.assert.throws(this.context.pending, Pending);
-            this.done();
         });
-        this.example("should raise with reason if supplied", function(test) {
+        this.example("should raise with reason if supplied", function() {
+            var test = this;
             this.assert.throws(function() {
                 test.context.pending("because");
             }, Pending, "because");
-            this.done();
         });
-        this.example("should not be replaceable", function(test) {
+        this.example("should not be replaceable", function() {
+            var test = this;
             this.assert.throws(function() {
                 test.context.pending = "something else";
             }, Error, 'Cannot replace `pending`');
-            this.done();
         });
     });
 
@@ -34,13 +34,11 @@ nodespec.describe("Context", function() {
             var func = function done_function() {};
             this.context._setup_done(func);
             this.assert.strictEqual(this.context.done, func);
-            this.done();
         });
         this.example("_setup_done cannot be replaced", function() {
             this.assert.throws(function() {
                 test.context._setup_done = "something else";
             }, Error, 'Cannot replace `_setup_done`');
-            this.done();
         });
         this.example("done cannot be replaced", function() {
             var func = function done_function() {};
@@ -48,7 +46,6 @@ nodespec.describe("Context", function() {
             this.assert.throws(function() {
                 test.context.done = "something else";
             }, Error, 'Cannot replace `_setup_done`');
-            this.done();
         });
     });
 
@@ -64,8 +61,6 @@ nodespec.describe("Context", function() {
             this.assert.equal(props.length, 2);
             this.assert.equal(props[0], 'one');
             this.assert.equal(props[1], 'two');
-
-            this.done();
         });
     });
 
@@ -73,17 +68,14 @@ nodespec.describe("Context", function() {
         this.example("should be undefined by default", function() {
             this.assert.strictEqual(this.context.expected_assertions,
                                     undefined);
-            this.done();
         });
         this.example("can be set directly", function() {
             this.context.expected_assertions = 5;
             this.assert.strictEqual(this.context.expected_assertions, 5);
-            this.done();
         });
         this.example("can be set with expect", function() {
             this.context.expect(5);
             this.assert.strictEqual(this.context.expected_assertions, 5);
-            this.done();
         });
         this.example("errors if not set to a number", function(test) {
             [
@@ -99,13 +91,12 @@ nodespec.describe("Context", function() {
                 test.assert.throws(assignment,
                                    TypeError, 'assertions must be a number');
             });
-            this.done();
+            test.done();
         });
     });
     this.describe("Checking expected assertions", function() {
         this.example("null with expected_assertions unset", function() {
             this.assert.equal(this.context.check_expected_assertions(), null);
-            this.done();
         });
         this.example("error with expected_assertions not met", function() {
             this.context.expect(4);
@@ -113,24 +104,18 @@ nodespec.describe("Context", function() {
             this.assert.ok(result instanceof AssertionError);
             this.assert.equal(result.message,
                               "Expected 4 assertions but got 0");
-            this.done();
         });
         this.context("fake assert object", function() {
             this.subject("fake_assert", function() { return new Object; });
             this.before(function(){
-                this.real_assert = nodespec.assert;
-                nodespec.assert = this.fake_assert;
-                this.done();
+                this.real_assert = target_nodespec.assert;
+                target_nodespec.assert = this.fake_assert;
             });
             this.after(function() {
-                nodespec.assert = this.real_assert;
-                this.done();
+                target_nodespec.assert = this.real_assert;
             });
             this.example("assert references nodespec.assert", function() {
-                // Use native assert since the stub replaces this.assert too!
-                var assert = require('assert');
-                assert.strictEqual(this.context.assert, this.fake_assert);
-                this.done();
+                this.assert.strictEqual(this.context.assert, this.fake_assert);
             });
         })
         this.example("no error when expected_assertions met", function() {
@@ -139,7 +124,6 @@ nodespec.describe("Context", function() {
             this.context.assert; this.context.assert;
             var result = this.context.check_expected_assertions();
             this.assert.equal(this.context.check_expected_assertions(), null);
-            this.done();
         });
     });
 });
