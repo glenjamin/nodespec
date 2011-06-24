@@ -167,8 +167,8 @@ Scenario: Test timing is handled by the formatter
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("3 second test", function() {
-            setTimeout(this.done, 3000);
+        this.example("3 second test", function(test) {
+            setTimeout(test.done, 3000);
         });
     });
     nodespec.exec();

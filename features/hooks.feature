@@ -131,12 +131,12 @@ Scenario: Error in before block
     And the output should contain "2 errored"
 
 @slow
-Scenario: done() not called in hook times out
+Scenario: done() not called in async hook times out
     Given a file named "basic-spec.js" with:
     """
     var nodespec = require('nodespec');
     nodespec.describe("Hook behaviour", function() {
-        this.before(function() {
+        this.before(function(hook) {
             this.stuff = 1
         });
         this.example("This example will not run", function() {
