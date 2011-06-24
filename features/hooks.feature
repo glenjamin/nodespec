@@ -11,16 +11,13 @@ Scenario: Setting up with before, not async
     nodespec.describe("Hook behaviour", function() {
         this.before(function() {
             this.variable = 1;
-            return false;
         });
         this.example("Variable is shared with hook", function() {
             this.assert.strictEqual(this.variable, 1);
             this.variable = 2;
-            this.done();
         });
         this.example("And hook is run each time", function() {
             this.assert.strictEqual(this.variable, 1);
-            this.done();
         });
     });
     nodespec.exec();
@@ -38,20 +35,16 @@ Scenario: Tearing down with after, not async
     nodespec.describe("Hook behaviour", function() {
         this.after(function() {
             outside_context = 2;
-            return false;
         });
         this.example("After hasn't been run", function() {
             this.assert.strictEqual(outside_context, 1);
-            this.done();
         });
         this.example("But now it has", function() {
             this.assert.strictEqual(outside_context, 2);
             outside_context = 3;
-            this.done();
         });
         this.example("And again after each test", function() {
             this.assert.strictEqual(outside_context, 2);
-            this.done();
         });
     });
     nodespec.exec();
@@ -83,12 +76,10 @@ Scenario: Setting up and tearing down with async code
             this.assert.strictEqual(outside, 1);
             this.assert.strictEqual(this.variable, 1);
             this.variable = 2;
-            this.done();
         });
         this.example("After has been run by now", function() {
             this.assert.strictEqual(outside, 2);
             this.assert.strictEqual(this.variable, 1);
-            this.done();
         });
     });
     nodespec.exec();
@@ -104,15 +95,12 @@ Scenario: Failure in before block
     nodespec.describe("Hook behaviour", function() {
         this.before(function() {
             this.assert.equal(1, 2);
-            this.done();
         });
         this.example("This example will be marked as failed, and not run", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
         this.example("As will this one", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
     });
     nodespec.exec();
@@ -128,15 +116,12 @@ Scenario: Error in before block
     nodespec.describe("Hook behaviour", function() {
         this.before(function() {
             a + b = c
-            this.done();
         });
         this.example("This example will be marked as failed, and not run", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
         this.example("As will this one", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
     });
     nodespec.exec();
@@ -156,7 +141,6 @@ Scenario: done() not called in hook times out
         });
         this.example("This example will not run", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
     });
     nodespec.exec();
@@ -173,19 +157,15 @@ Scenario: after hooks are called, regardless of test result
         var counter = 0;
         this.after(function() {
             console.log('after #'+ (++counter));
-            this.done();
         });
         this.example("passing example", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
         this.example("failing example", function() {
             this.assert.strictEqual(1, 2);
-            this.done();
         });
         this.example("erroring example", function() {
             this.assert.strictEqual(a, b);
-            this.done();
         });
     });
     nodespec.exec();
@@ -206,19 +186,15 @@ Scenario: Failure in after hook
     nodespec.describe("Hook behaviour", function() {
         this.after(function() {
             throw new Error('after errored');
-            this.done();
         });
         this.example("passing example now fails", function() {
             this.assert.strictEqual(1, 1);
-            this.done();
         });
         this.example("failing example fails with own failure", function() {
             this.assert.strictEqual(1, 2);
-            this.done();
         });
         this.example("erroring example fails with own error", function() {
             this.assert.strictEqual(a, b);
-            this.done();
         });
     });
     nodespec.exec();
@@ -236,16 +212,13 @@ Scenario: After hooks are always run
         this.after(function() {
             console.log('first after');
             throw new Error('first cleanup action failed');
-            this.done();
         });
         this.after(function() {
             console.log('second after');
             throw new Error('second cleanup action failed');
-            this.done();
         });
         this.example("failing example", function() {
             this.assert.strictEqual(1, 2);
-            this.done();
         });
     });
     nodespec.exec();
@@ -262,21 +235,17 @@ Scenario: Global hooks
     var nodespec = require('nodespec');
     nodespec.before(function() {
         this.something = [1];
-        this.done();
     });
     var a = 1;
     nodespec.after(function() {
         a += 1;
-        this.done();
     });
     nodespec.describe("Global hooks", function() {
         this.example("are run with every test", function() {
             this.assert.equal(this.something.length, 1);
-            this.done();
         });
         this.example("including after hooks", function() {
             this.assert.equal(a, 2);
-            this.done();
         });
     });
     nodespec.exec();

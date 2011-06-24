@@ -13,7 +13,6 @@ Scenario: Correct number of assertions
             this.expect(2);
             this.assert.strictEqual(1 + 1, 2);
             this.assert.strictEqual(2 + 2, 4);
-            this.done();
         });
     });
     nodespec.exec();
@@ -30,7 +29,6 @@ Scenario: Not enough assertions
         this.example("2 assertions expected and 1 called", function() {
             this.expect(2);
             this.assert.strictEqual(1 + 1, 2);
-            this.done();
         });
     });
     nodespec.exec();
@@ -48,7 +46,6 @@ Scenario: Too many assertions
             this.expect(1);
             this.assert.strictEqual(1 + 1, 2);
             this.assert.strictEqual(2 + 2, 4);
-            this.done();
         });
     });
     nodespec.exec();

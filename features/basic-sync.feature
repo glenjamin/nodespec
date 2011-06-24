@@ -11,8 +11,6 @@ Scenario: Single passing spec
     nodespec.describe("Addition", function() {
         this.example("1 + 1 = 2", function() {
             this.assert.equal(1 + 1, 2);
-            // Return non-undefined to indicate not async
-            return true;
         });
     });
     nodespec.exec();
@@ -29,8 +27,6 @@ Scenario: Single failing spec
     nodespec.describe("Addition", function() {
         this.example("2 + 2 = 5", function() {
             this.assert.equal(2 + 2, 5);
-            // Return non-undefined to indicate not async
-            return true;
         });
     });
     nodespec.exec();
@@ -90,11 +86,9 @@ Scenario: Multiple specs with various results
     nodespec.describe("Addition", function() {
         this.example("1 + 1 = 2", function() {
             this.assert.equal(1 + 1, 2);
-            return true;
         });
         this.example("2 + 2 = 5", function() {
             this.assert.equal(2 + 2, 5);
-            return true;
         });
         this.example("1 + ? = 2");
         this.example("1 + 1 = 2", function() {

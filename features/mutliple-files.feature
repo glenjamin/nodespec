@@ -17,7 +17,6 @@ Scenario: Using nodespec.require
     nodespec.describe("One", function() {
         this.example("is one", function() {
             this.assert.equal(1, 1);
-            this.done();
         });
     })
     nodespec.exec();
@@ -28,7 +27,6 @@ Scenario: Using nodespec.require
     nodespec.describe("Two", function() {
         this.example("is two", function() {
             this.assert.equal(2, 2);
-            this.done();
         });
     })
     nodespec.exec();

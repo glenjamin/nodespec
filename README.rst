@@ -95,19 +95,19 @@ Simple spec::
     nodespec.describe("Addition", function() {
         this.example("1 + 1 = 2", function() {
             this.assert.equal(1 + 1, 2);
-            // Return non-undefined to indicate not async
-            return true;
         });
     });
 
 Simple async spec::
 
     nodespec.describe("nextTick", function() {
+        // Accept 1 argument in the definition for an async test
         this.example("fires the callback", function(test) {
             this.expect(2);
             this.assert.strictEqual(this, test);
             process.nextTick(function() {
                 this.assert.strictNotEqual(this, test);
+                // async tests must call test.done()
                 test.done();
             });
         });
@@ -129,7 +129,6 @@ Before/After Hooks::
         });
         this.after(function() {
             this.tx.rollback();
-            return true; // not async
         });
         this.example("database interaction", function(test) {
             test.expect(2);
@@ -153,7 +152,6 @@ Nested contexts with subject::
         this.context("Strict Mode", function() {
             this.before(function() {
                 this.server.use_strict_mode();
-                this.done();
             });
             this.example("invalid request fails", function(test) {
                 test.expect(1);
@@ -166,7 +164,6 @@ Nested contexts with subject::
         this.context("Not Strict Mode", function() {
             this.before(function() {
                 this.server.dont_use_strict_mode();
-                this.done();
             });
             this.example("invalid request fails silently", function(test) {
                 test.expect(2);

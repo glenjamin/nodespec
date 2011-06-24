@@ -15,11 +15,9 @@ Scenario: Un-named subject
             this.assert.equal(this.subject.length, 0);
             this.subject.push(1);
             this.assert.equal(this.subject.length, 1);
-            this.done();
         });
         this.example("And is reset for each test", function() {
             this.assert.equal(this.subject.length, 0);
-            this.done();
         });
     });
     nodespec.exec();
@@ -46,7 +44,6 @@ Scenario: Named subjects
             this.assert.equal(this.right[0], 1);
             this.left[0] = 2;
             this.assert.equal(this.right[0], 1);
-            this.done();
         });
     });
     nodespec.exec();
@@ -66,7 +63,6 @@ Scenario: Nesting subjects
         this.context("Subject unchanged", function() {
             this.example("message is empty", function() {
                 this.assert.equal(this.subject.message, "");
-                this.done();
             });
         });
         this.context("Subject replaced", function() {
@@ -75,7 +71,6 @@ Scenario: Nesting subjects
             });
             this.example("message is 'message'", function() {
                 this.assert.equal(this.subject.message, "message");
-                this.done();
             });
         });
     });

@@ -15,14 +15,12 @@ Scenario: Using the sandbox for spies
                 spy(1, 2, 3);
                 this.sinon.assert.calledOnce(spy);
                 this.sinon.assert.calledWith(spy, 1, 2, 3);
-                this.done();
             });
             this.example("fail", function() {
                 var spy = this.sinon.spy();
                 spy(1, 2, 3);
                 this.sinon.assert.calledOnce(spy);
                 this.sinon.assert.calledWith(spy, 1, 2, 4);
-                this.done();
             });
         });
     });
@@ -47,13 +45,11 @@ Scenario: Using the sandbox for mocks - automatically verified
                 var mock = this.sinon.mock(this.subject);
                 mock.expects("method").once().withArgs(1);
                 this.subject.method(1);
-                this.done();
             });
             this.example("fail", function() {
                 var mock = this.sinon.mock(this.subject);
                 mock.expects("method").once().withArgs(1);
                 this.subject.method(2);
-                this.done();
             });
         });
     });
@@ -76,7 +72,6 @@ Scenario: Sinon assertions work with expect()
             spy(1, 2, 3);
             this.sinon.assert.calledOnce(spy);
             this.sinon.assert.calledWith(spy, 1, 2, 3);
-            this.done();
         });
     });
     nodespec.exec();

@@ -8,10 +8,10 @@ Scenario: Passing tests only
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("Test 1", function() { this.done(); });
-        this.example("Test 2", function() { this.done(); });
-        this.example("Test 3", function() { this.done(); });
-        this.example("Test 4", function() { this.done(); });
+        this.example("Test 1", function() {  });
+        this.example("Test 2", function() {  });
+        this.example("Test 3", function() {  });
+        this.example("Test 4", function() {  });
     });
     nodespec.exec();
     """
@@ -29,24 +29,20 @@ Scenario: Some failing tests
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("Test 1", function() { this.done(); });
+        this.example("Test 1", function() {  });
         this.example("Test 2", function() {
             this.assert.ok(false);
-            this.done();
         });
         this.example("Test 3", function() {
             this.assert.strictEqual('1', 1);
-            this.done();
         });
-        this.example("Test 4", function() { this.done(); });
+        this.example("Test 4", function() {  });
         this.example("Test 5", function() {
             this.expect(1);
-            this.done();
         });
         this.example("Test 6", function() {
             var msg = "But with a custom message";
             this.assert.ok(false, msg);
-            this.done();
         });
     });
     nodespec.exec();
@@ -65,17 +61,17 @@ Scenario: Some failing tests
                 got: false
 
       2) Dummy Tests Test 3
-         // ./basic-spec.js:9
+         // ./basic-spec.js:8
          this.assert.strictEqual('1', 1);
            expected: 1
                 got: '1'
 
       3) Dummy Tests Test 5
-         // ./basic-spec.js:13
+         // ./basic-spec.js:11
            Expected 1 assertions but got 0
 
       4) Dummy Tests Test 6
-         // ./basic-spec.js:19
+         // ./basic-spec.js:16
          this.assert.ok(false, msg);
            But with a custom message
     """
@@ -86,12 +82,11 @@ Scenario: Some pending tests
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("Test 1", function() { this.done(); });
-        this.example("Test 2", function() { this.done(); });
+        this.example("Test 1", function() {  });
+        this.example("Test 2", function() {  });
         this.example("Test 3");
         this.example("Test 4", function() {
             this.pending("For this reason");
-            this.done();
         });
     });
     nodespec.exec();
@@ -135,10 +130,10 @@ Scenario: Some errored tests
             a + b
         });
         this.example("Test 2", function() {
-            this.done();
+
         });
-        this.example("Test 3", function() {
-            lib.fail_async(this.done);
+        this.example("Test 3", function(test) {
+            lib.fail_async(test.done);
         });
     });
     nodespec.exec();
@@ -158,10 +153,10 @@ Scenario: Some errored tests
 
       2) Dummy Tests Test 3
          // ./basic-spec.js:11
-         lib.fail_async(this.done);
+         lib.fail_async(test.done);
          CustomError: failing function
            at Object.fail_async (./lib.js:2:14)
-           at Context.<anonymous> (./basic-spec.js:11:13)
+           at ./basic-spec.js:11:13
     """
     And the output should contain "3 specs (1 passed, 2 errored)"
 
@@ -189,17 +184,13 @@ Scenario: Everything, including colour
     """
     var nodespec = require('nodespec');
     nodespec.describe("Progress Formatter Output", function() {
-        this.example("Passing Test", function() {
-            this.done();
-        });
+        this.example("Passing Test", function() {  });
         this.example("Failing Test", function() {
             this.assert.equal(true, false);
-            this.done();
         });
         this.example("Pending Test");
         this.example("Errored Test", function() {
             throw new Error("Whoops!");
-            this.done();
         });
     });
     nodespec.exec();
@@ -213,13 +204,13 @@ Scenario: Everything, including colour
     [33mPending:[39m
 
     [33m  1) Progress Formatter Output Pending Test[39m
-    [33m     // ./basic-spec.js:10[39m
+    [33m     // ./basic-spec.js:7[39m
     [33m       <unimplemented>[39m
 
     [31mFailures:[39m
 
     [31m  1) Progress Formatter Output Failing Test[39m
-    [31m     // ./basic-spec.js:7[39m
+    [31m     // ./basic-spec.js:5[39m
     [31m     this.assert.equal(true, false);[39m
     [31m       expected: false[39m
     [31m            got: true[39m
@@ -227,10 +218,10 @@ Scenario: Everything, including colour
     [36mErrors:[39m
 
     [36m  1) Progress Formatter Output Errored Test[39m
-    [36m     // ./basic-spec.js:12[39m
+    [36m     // ./basic-spec.js:9[39m
     [36m     throw new Error("Whoops!");[39m
     [36m     Error: Whoops![39m
-    [36m       at Context.<anonymous> (./basic-spec.js:12:15)[39m
+    [36m       at Context.<anonymous> (./basic-spec.js:9:15)[39m
 
     4 specs ([32m1 passed[39m, [33m1 pending[39m, [31m1 failed[39m, [36m1 errored[39m)
     """
