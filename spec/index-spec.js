@@ -38,13 +38,15 @@ nodespec.describe("Nodespec", function() {
         });
         this.describe("assert", function() {
             this.example("defaults to stdlib assert module", function() {
-                this.assert.strictEqual(this.nodespec.assert, require('assert'));
+                this.assert.strictEqual(this.nodespec.assert,
+                                        require('assert'));
             });
             this.example("can be replaced with custom object", function() {
                 var replacement_assert = new Object;
                 this.nodespec.assert = replacement_assert;
 
-                this.assert.strictEqual(this.nodespec.assert, replacement_assert);
+                this.assert.strictEqual(this.nodespec.assert,
+                                        replacement_assert);
             });
         });
         this.describe("describe", function() {

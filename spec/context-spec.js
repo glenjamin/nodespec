@@ -1,14 +1,16 @@
 var nodespec = require('./common');
 
 var context = require('../lib/context');
-var target_nodespec = require('../lib/index');
 
 var Pending = require('../lib/exceptions').Pending,
     AssertionError = require('assert').AssertionError;
 
 nodespec.describe("Context", function() {
     this.subject("context", function() {
-        return new context.Context(target_nodespec);
+        return new context.Context(this.nodespec);
+    });
+    this.subject("nodespec", function() {
+        return nodespec("copy for context");
     });
 
     this.describe("pending", function() {
@@ -105,19 +107,10 @@ nodespec.describe("Context", function() {
             this.assert.equal(result.message,
                               "Expected 4 assertions but got 0");
         });
-        this.context("fake assert object", function() {
-            this.subject("fake_assert", function() { return new Object; });
-            this.before(function(){
-                this.real_assert = target_nodespec.assert;
-                target_nodespec.assert = this.fake_assert;
-            });
-            this.after(function() {
-                target_nodespec.assert = this.real_assert;
-            });
-            this.example("assert references nodespec.assert", function() {
-                this.assert.strictEqual(this.context.assert, this.fake_assert);
-            });
-        })
+        this.example("assert references nodespec.assert", function() {
+            this.nodespec.assert = this.fake_assert;
+            this.assert.strictEqual(this.context.assert, this.fake_assert);
+        });
         this.example("no error when expected_assertions met", function() {
             this.context.expect(4);
             this.context.assert; this.context.assert;
