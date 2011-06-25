@@ -1,5 +1,5 @@
 Unit test existing code
-Sinon Mock objecst (blocked until sinon updated to expose mock.fail)
+Code coverage?
 Better tests for not calling done
 Configurable hook timeouts
 Proper commandline runner
