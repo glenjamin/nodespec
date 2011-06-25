@@ -24,4 +24,35 @@ nodespec.describe("Exceptions", function() {
             );
         })
     });
+    this.describe("ExpectationError", function() {
+        this.subject(function() {
+            return new exceptions.ExpectationError({
+                message: "expected something but got something else"
+            });
+        })
+        this.example("should be an instance of error", function() {
+            this.assert.ok(this.subject instanceof Error);
+        });
+        this.example("should be an instance of AssertionError", function() {
+            var AssertionError = require('assert').AssertionError;
+            this.assert.ok(this.subject instanceof AssertionError);
+        });
+        this.example("should have message", function() {
+            this.assert.equal(this.subject.message,
+                              "expected something but got something else");
+        });
+        this.example("should have tidy toString", function() {
+            this.assert.equal(
+                this.subject.toString(),
+                "ExpectationError: expected something but got something else"
+            );
+        });
+        this.example("should have a stack trace", function() {
+            this.assert.ok(this.subject.stack);
+            this.assert.ok(
+                this.subject.stack.indexOf('exceptions-spec.js:29') !== -1
+            );
+        })
+    });
 });
+nodespec.exec();
