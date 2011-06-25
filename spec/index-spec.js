@@ -116,6 +116,63 @@ nodespec.describe("Nodespec", function() {
                 this.sinon.assert.notCalled(exec);
             });
         });
+        this.describe("global hooks", function() {
+            this.subject("block", function(){
+                return function(){};
+            });
+            this.example("before adds block to before_hooks", function() {
+                this.nodespec.before(this.block);
+                this.assert.equal(this.nodespec.before_hooks.length, 1);
+                this.assert.equal(this.nodespec.before_hooks[0], this.block);
+            });
+            this.example("after adds block to after_hooks", function() {
+                this.nodespec.after(this.block);
+                this.assert.equal(this.nodespec.after_hooks.length, 1);
+                this.assert.equal(this.nodespec.after_hooks[0], this.block);
+            });
+        })
+        this.describe("mockWith", function() {
+            this.example("should load named mock support file", function() {
+                var Module = require('module').Module;
+                var load = this.sinon.stub(Module, "_load");
+                var mock_support_mixin = this.sinon.spy();
+                load.returns(mock_support_mixin);
+
+                this.nodespec.mockWith("mockingbird");
+
+                this.sinon.assert.calledOnce(load);
+                this.sinon.assert.calledWith(load, "./mocks/mockingbird");
+                this.sinon.assert.calledOnce(mock_support_mixin);
+                this.sinon.assert.calledWith(mock_support_mixin, this.nodespec);
+            });
+            this.example("should raise for missing support file", function() {
+                var Module = require('module').Module;
+                var load = this.sinon.stub(Module, "_load", function(module) {
+                    var msg = "Error: cannot find module '" + module + "'";
+                    throw new Error(msg);
+                });
+
+                this.assert.throws(function() {
+                    this.nodespec.mockWith("mockingbird");
+                }.bind(this),
+                'Error', "Cannot mock with mockingbird, "+
+                         "this usually means a dependency is missing");
+            });
+            this.example("should raise for broken support", function() {
+                var Module = require('module').Module;
+                var load = this.sinon.stub(Module, "_load");
+                var mock_support_mixin = function(nodespec) {
+                    nodespec = a + b;
+                };
+                load.returns(mock_support_mixin);
+
+                this.assert.throws(function() {
+                    this.nodespec.mockWith("mockingbird");
+                }.bind(this),
+                'Error', "Cannot mock with mockingbird, "+
+                         "this usually means a dependency is missing");
+            });
+        });
     });
 });
 nodespec.exec();
