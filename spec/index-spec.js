@@ -1,6 +1,10 @@
 var nodespec = require('./common');
 
-var eg = require('../lib/example_group');
+var eg = require('../lib/example_group'),
+    r  = require('../lib/result'),
+    pf = require('../lib/formatters/progress_formatter');
+
+var Module = require('module').Module;
 
 nodespec.describe("Nodespec", function() {
     this.describe("sandboxing nodespecs", function() {
@@ -98,7 +102,6 @@ nodespec.describe("Nodespec", function() {
         });
         this.describe("require", function() {
             this.example("should call native require", function() {
-                var Module = require('module').Module;
                 var load = this.sinon.stub(Module, "_load");
 
                 this.nodespec.require("some-tests");
@@ -106,7 +109,6 @@ nodespec.describe("Nodespec", function() {
                 this.sinon.assert.calledWith(load, __dirname + "/some-tests");
             });
             this.example("should disable exec during the require", function() {
-                var Module = require('module').Module;
                 var load = this.sinon.stub(Module, "_load", function() {
                     this.nodespec.exec();
                 }.bind(this));
@@ -171,6 +173,119 @@ nodespec.describe("Nodespec", function() {
                 }.bind(this),
                 'Error', "Cannot mock with mockingbird, "+
                          "this usually means a dependency is missing");
+            });
+        });
+        this.describe("exec", function() {
+            this.subject("result", function() { return new Object; });
+            this.subject("groups", function() { return []; });
+            this.before(function() {
+                var s = this.sinon;
+                this.res_cls = s.stub(r, "Result");
+                this.res_cls.returns(this.result);
+                s.stub(this.nodespec, "example_groups", this.groups);
+                // TODO: abstract out formatters better
+                this.pf_cls = s.stub(pf, "ProgressFormatter", function(ee) {
+                    this.emit = s.stub(ee, "emit");
+                }.bind(this));
+            });
+            this.context("no example groups", function() {
+                this.before(function() {
+                    this.exit = this.sinon.stub(process, "exit");
+                });
+                this.example("should fire suite events", function() {
+                    this.nodespec.exec();
+
+                    this.sinon.assert.calledTwice(this.emit);
+                    var c1 = this.emit.getCall(0);
+                    this.assert.ok(c1.calledWith("suiteStart"));
+                    var c2 = this.emit.getCall(1);
+                    this.assert.ok(c2.calledWith("suiteComplete"));
+                });
+                this.example("should exit process with code", function() {
+                    this.result.exit_code = 0;
+
+                    this.nodespec.exec();
+
+                    this.sinon.assert.calledOnce(this.exit);
+                    this.sinon.assert.calledWith(this.exit, 0);
+                });
+            });
+            this.context("with example groups", function() {
+                this.before(function() {
+                    this.g1 = new Object;
+                    this.r1 = new Object;
+                    this.g1.exec = this.sinon.stub();
+                    this.g1.exec.yields(null, this.r1);
+                    this.groups.push(this.g1);
+
+                    this.g2 = new Object;
+                    this.r2 = new Object;
+                    this.g2.exec = this.sinon.stub();
+                    this.g2.exec.yields(null, this.r2);
+                    this.groups.push(this.g2);
+
+                    this.result.add = this.sinon.stub();
+                    this.result.exit_code = 0;
+                });
+                this.example("should exec each example group", function(test) {
+                    test.expect(4);
+                    test.sinon.stub(process, "exit", function(code) {
+                        var s = test.sinon;
+
+                        test.assert.equal(code, 0);
+                        s.assert.calledOnce(test.g1.exec);
+                        s.assert.calledOnce(test.g2.exec);
+                        s.assert.callOrder(test.g1.exec, test.g2.exec);
+
+                        test.done();
+                    });
+                    test.nodespec.exec();
+                });
+                this.example("should add up all the results", function(test) {
+                    test.expect(4);
+                    test.sinon.stub(process, "exit", function(code) {
+                        var s = test.sinon;
+
+                        test.assert.equal(code, 0);
+                        s.assert.calledTwice(test.result.add);
+                        var c1 = test.result.add.getCall(0);
+                        var c2 = test.result.add.getCall(1);
+
+                        test.assert.ok(c1.calledWith(test.r1));
+                        test.assert.ok(c2.calledWith(test.r2));
+
+                        test.done();
+                    });
+                    test.nodespec.exec();
+                });
+                this.example("should fire suite events", function(test) {
+                    test.expect(7);
+                    test.sinon.stub(process, "exit", function(code) {
+                        var s = test.sinon;
+
+                        test.assert.equal(code, 0);
+                        s.assert.calledTwice(test.emit);
+                        var c1 = test.emit.getCall(0);
+                        var c2 = test.emit.getCall(1);
+
+                        test.assert.ok(c1.calledWith("suiteStart"));
+                        test.assert.ok(c2.calledWith("suiteComplete"));
+
+                        // Bit fiddly,
+                        // sinon.assert.callOrder only uses first call
+                        // emit(start), g1.exec, g2.exec, emit(complete)
+                        var o1 = test.emit.callIds[0];
+                        var o2 = test.g1.exec.callIds[0];
+                        var o3 = test.g2.exec.callIds[0];
+                        var o4 = test.emit.callIds[1];
+                        test.assert.ok(o1 < o2);
+                        test.assert.ok(o2 < o3);
+                        test.assert.ok(o3 < o4);
+
+                        test.done();
+                    });
+                    test.nodespec.exec();
+                });
             });
         });
     });
