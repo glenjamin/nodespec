@@ -57,6 +57,7 @@ nodespec.describe("Nodespec", function() {
             this.subject("definition", function() { return function(){} });
             this.before(function() {
                 this.eg_cls = this.sinon.stub(eg, "ExampleGroup");
+                this.eg_cls.prototype = eg.ExampleGroup.prototype;
             });
             this.example("factory for ExampleGroup", function() {
                 var group = this.nodespec.describe("a set of tests",
@@ -66,7 +67,7 @@ nodespec.describe("Nodespec", function() {
                 var call = this.eg_cls.getCall(0);
 
                 // Called as constructor
-                this.assert.ok(call.calledOn(group));
+                this.assert.ok(call.thisValue instanceof eg.ExampleGroup);
                 // Arg 1 = description
                 this.assert.equal(call.args[0], "a set of tests");
                 // Arg 2 = options object
