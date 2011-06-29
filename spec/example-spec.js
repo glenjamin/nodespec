@@ -4,6 +4,7 @@ var AssertionError = require('assert').AssertionError;
 
 var Example = require('../lib/example').Example;
 var SingleResult = require('../lib/result').SingleResult;
+var Pending = require('../lib/exceptions').Pending;
 var context = require('../lib/context');
 
 nodespec.describe("Example", function() {
@@ -59,7 +60,7 @@ nodespec.describe("Example", function() {
             // This would normally be the group.example call
             // that defines the test
             this.assert.equal(this.example.file_path, __filename);
-            this.assert.equal(this.example.line_number, 11);
+            this.assert.equal(this.example.line_number, 12);
         });
         this.example("should have block", function() {
             this.assert.strictEqual(this.example.block, this.block);
@@ -92,9 +93,9 @@ nodespec.describe("Example", function() {
             return context;
         });
         this.subject("emitter", function() {
-            var emit = new Object;
-            emit.emit = this.sinon.spy();
-            return emit;
+            var emitter = new Object;
+            emitter.emit = this.sinon.spy();
+            return emitter;
         });
         this.before(function() {
             var ctx = this.context;
@@ -117,45 +118,9 @@ nodespec.describe("Example", function() {
             this.subject("block", function() {
                 return this.sinon.spy();
             });
-            this.example("should run block in context", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function() {
-                    test.sinon.assert.calledOnce(test.block);
-                    var call = test.block.getCall(0);
-                    test.assert.strictEqual(call.thisValue, test.context);
-                    test.assert.equal(call.args.length, 0);
-                    test.done();
-                });
-            });
-            this.example("should return pass result", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.assert.equal(err, null);
-                    test.assert.ok(result instanceof SingleResult);
-                    test.assert.equal(result.type, "pass");
-                    test.done();
-                });
-            });
-            this.example("should emit events", function(test) {
-                test.expect(9);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.sinon.assert.calledThrice(test.emitter.emit);
-                    // exampleStart(example)
-                    var c1 = test.emitter.emit.getCall(0);
-                    test.assert.equal(c1.args[0], "exampleStart");
-                    test.assert.equal(c1.args[1], test.example);
-                    // exampleComplete(example, result)
-                    var c2 = test.emitter.emit.getCall(1);
-                    test.assert.equal(c2.args[0], "exampleComplete");
-                    test.assert.equal(c2.args[1], test.example);
-                    test.assert.equal(c2.args[2], result);
-                    // examplePass(example, error)
-                    var c3 = test.emitter.emit.getCall(2);
-                    test.assert.equal(c3.args[0], "examplePass");
-                    test.assert.equal(c3.args[1], test.example);
-                    test.assert.equal(c3.args[2], null);
-                    test.done();
-                })
+            sync_exec_behaviour(this, {
+                type: "pass",
+                event: "examplePass"
             });
         });
         this.context("non-async block that raises AssertionError", function() {
@@ -166,45 +131,24 @@ nodespec.describe("Example", function() {
             this.subject("exception", function() {
                 return new AssertionError({message: "fail"});
             });
-            this.example("should run block in context", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function() {
-                    test.sinon.assert.calledOnce(test.block);
-                    var call = test.block.getCall(0);
-                    test.assert.strictEqual(call.thisValue, test.context);
-                    test.assert.equal(call.args.length, 0);
-                    test.done();
-                });
+            sync_exec_behaviour(this, {
+                type: "fail",
+                event: "exampleFail",
+                error: "exception"
             });
-            this.example("should return fail result", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.assert.equal(err, null);
-                    test.assert.ok(result instanceof SingleResult);
-                    test.assert.equal(result.type, "fail");
-                    test.done();
-                });
+        });
+        this.context("non-async block that raises Pending", function() {
+            this.subject("block", function() {
+                var ex = this.exception;
+                return this.sinon.spy(function() { throw ex; });
             });
-            this.example("should emit events", function(test) {
-                test.expect(9);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.sinon.assert.calledThrice(test.emitter.emit);
-                    // exampleStart(example)
-                    var c1 = test.emitter.emit.getCall(0);
-                    test.assert.equal(c1.args[0], "exampleStart");
-                    test.assert.equal(c1.args[1], test.example);
-                    // exampleComplete(example, result)
-                    var c2 = test.emitter.emit.getCall(1);
-                    test.assert.equal(c2.args[0], "exampleComplete");
-                    test.assert.equal(c2.args[1], test.example);
-                    test.assert.equal(c2.args[2], result);
-                    // examplePass(example, error)
-                    var c3 = test.emitter.emit.getCall(2);
-                    test.assert.equal(c3.args[0], "exampleFail");
-                    test.assert.equal(c3.args[1], test.example);
-                    test.assert.equal(c3.args[2], test.exception);
-                    test.done();
-                })
+            this.subject("exception", function() {
+                return new Pending("reason");
+            });
+            sync_exec_behaviour(this, {
+                type: "pend",
+                event: "examplePend",
+                error: "exception"
             });
         });
         this.context("non-async block with ordinary error", function() {
@@ -215,45 +159,10 @@ nodespec.describe("Example", function() {
             this.subject("exception", function() {
                 return new Error("epic fail");
             });
-            this.example("should run block in context", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function() {
-                    test.sinon.assert.calledOnce(test.block);
-                    var call = test.block.getCall(0);
-                    test.assert.strictEqual(call.thisValue, test.context);
-                    test.assert.equal(call.args.length, 0);
-                    test.done();
-                });
-            });
-            this.example("should return error result", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.assert.equal(err, null);
-                    test.assert.ok(result instanceof SingleResult);
-                    test.assert.equal(result.type, "error");
-                    test.done();
-                });
-            });
-            this.example("should emit events", function(test) {
-                test.expect(9);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.sinon.assert.calledThrice(test.emitter.emit);
-                    // exampleStart(example)
-                    var c1 = test.emitter.emit.getCall(0);
-                    test.assert.equal(c1.args[0], "exampleStart");
-                    test.assert.equal(c1.args[1], test.example);
-                    // exampleComplete(example, result)
-                    var c2 = test.emitter.emit.getCall(1);
-                    test.assert.equal(c2.args[0], "exampleComplete");
-                    test.assert.equal(c2.args[1], test.example);
-                    test.assert.equal(c2.args[2], result);
-                    // examplePass(example, error)
-                    var c3 = test.emitter.emit.getCall(2);
-                    test.assert.equal(c3.args[0], "exampleError");
-                    test.assert.equal(c3.args[1], test.example);
-                    test.assert.equal(c3.args[2], test.exception);
-                    test.done();
-                })
+            sync_exec_behaviour(this, {
+                type: "error",
+                event: "exampleError",
+                error: "exception"
             });
         });
         this.context("async block that calls done", function() {
@@ -279,23 +188,22 @@ nodespec.describe("Example", function() {
         });
         this.context("async block that doesn't call done", function() {
             this.subject("block", function() {
-                // Bit of a hack to get a "function" with length 1 and a spy
-                var hook = this;
-                hook.block_spy = this.sinon.spy();
+                // Bit of a hack to get a function with length 1 and a spy
+                var test = this;
+                test.sinon.useFakeTimers();
+                test.block_spy = this.sinon.spy();
                 return function(t) {
-                    hook.block_spy.apply(this, arguments);
+                    test.block_spy.apply(this, arguments);
+                    process.nextTick(function() {
+                        test.sinon.clock.tick(5100);
+                    });
                 };
             });
             this.example("should error out after timeout", function(test) {
-                test.sinon.useFakeTimers();
+                test.expect(1);
                 var after_exec = test.sinon.spy();
-                test.example.exec(test.emitter, after_exec);
-                // Add a bit of fuzz to account for interval
-                test.sinon.clock.tick(5100);
-                process.nextTick(function() {
-                    test.sinon.assert.calledOnce(after_exec);
-                    var arg = after_exec.getCall(0).args[1];
-                    test.assert.ok(arg.type == 'error');
+                test.example.exec(test.emitter, function(err, result) {
+                    test.assert.equal(result.type, "error");
                     test.done();
                 });
             });
@@ -303,3 +211,47 @@ nodespec.describe("Example", function() {
     });
 });
 nodespec.exec();
+
+function sync_exec_behaviour(group, options) {
+    var type = options.type, event = options.event, error = options.error;
+    group.example("should run block in context", function(test) {
+        test.expect(3);
+        test.example.exec(test.emitter, function() {
+            test.sinon.assert.calledOnce(test.block);
+            var call = test.block.getCall(0);
+            test.assert.strictEqual(call.thisValue, test.context);
+            test.assert.equal(call.args.length, 0);
+            test.done();
+        });
+    });
+    group.example("should return "+type+" result", function(test) {
+        test.expect(3);
+        test.example.exec(test.emitter, function(err, result) {
+            test.assert.equal(err, null);
+            test.assert.ok(result instanceof SingleResult);
+            test.assert.equal(result.type, type);
+            test.done();
+        });
+    });
+    group.example("should emit events", function(test) {
+        test.expect(9);
+        test.example.exec(test.emitter, function(err, result) {
+            test.sinon.assert.calledThrice(test.emitter.emit);
+            // exampleStart(example)
+            var c1 = test.emitter.emit.getCall(0);
+            test.assert.equal(c1.args[0], "exampleStart");
+            test.assert.equal(c1.args[1], test.example);
+            // exampleComplete(example, result)
+            var c2 = test.emitter.emit.getCall(1);
+            test.assert.equal(c2.args[0], "exampleComplete");
+            test.assert.equal(c2.args[1], test.example);
+            test.assert.equal(c2.args[2], result);
+            // examplePass(example, error)
+            var c3 = test.emitter.emit.getCall(2);
+            test.assert.equal(c3.args[0], event);
+            test.assert.equal(c3.args[1], test.example);
+            test.assert.equal(c3.args[2], error ? test[error] : error);
+            test.done();
+        })
+    });
+}
