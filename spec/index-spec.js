@@ -8,6 +8,13 @@ var Module = require('module').Module;
 
 nodespec.describe("Nodespec", function() {
     this.describe("sandboxing nodespecs", function() {
+        this.example("require('nodespec') gives default", function() {
+            var nodespec1 = require('../lib/index');
+            var nodespec2 = nodespec1('default');
+            this.assert.strictEqual(nodespec1, nodespec2);
+            // Cleanup, test below proves it works!
+            nodespec1.abandon();
+        });
         this.example("calling nodespec gives a new copy", function() {
             var new_nodespec = nodespec("new copy");
             this.assert.notStrictEqual(new_nodespec, nodespec);
