@@ -41,8 +41,8 @@ nodespec.describe("Nodespec", function() {
         });
     });
     this.context("sandboxed nodespec module", function() {
-        this.before("nodespec", function() {
-            this.nodespec = nodespec("fresh nodespec to test");
+        this.subject("nodespec", function() {
+            return nodespec("fresh nodespec to test");
         });
         this.after(function() {
             this.nodespec.abandon();
@@ -62,16 +62,21 @@ nodespec.describe("Nodespec", function() {
         });
         this.describe("describe", function() {
             this.subject("definition", function() { return function(){} });
-            this.before(function() {
-                this.eg_cls = this.sinon.stub(eg, "ExampleGroup");
-                this.eg_cls.prototype = eg.ExampleGroup.prototype;
+            this.subject("nodespec", function() {
+                return nodespec("fresh nodespec to test",
+                                { ExampleGroup: this.ExampleGroup });
+            });
+            this.subject("ExampleGroup", function() {
+                var eg_cls = this.sinon.stub(eg, "ExampleGroup");
+                eg_cls.prototype = eg.ExampleGroup.prototype;
+                return eg_cls;
             });
             this.example("factory for ExampleGroup", function() {
                 var group = this.nodespec.describe("a set of tests",
                                                    this.definition);
 
-                this.sinon.assert.calledOnce(this.eg_cls);
-                var call = this.eg_cls.getCall(0);
+                this.sinon.assert.calledOnce(this.ExampleGroup);
+                var call = this.ExampleGroup.getCall(0);
 
                 // Called as constructor
                 this.assert.ok(call.thisValue instanceof eg.ExampleGroup);
@@ -91,8 +96,8 @@ nodespec.describe("Nodespec", function() {
                 var group = this.nodespec.describe("a set of tests",
                                                    options, this.definition);
 
-                this.sinon.assert.calledOnce(this.eg_cls);
-                var call = this.eg_cls.getCall(0);
+                this.sinon.assert.calledOnce(this.ExampleGroup);
+                var call = this.ExampleGroup.getCall(0);
 
                 // Arg 2 = options object
                 this.assert.strictEqual(call.args[1], options);
@@ -184,18 +189,24 @@ nodespec.describe("Nodespec", function() {
             });
         });
         this.describe("exec", function() {
-            this.subject("result", function() { return new Object; });
-            this.subject("groups", function() { return []; });
-            this.before(function() {
+            this.subject("nodespec", function() {
+                var ns = nodespec("fresh nodespec to test",
+                                  { Result: this.Result });
                 var s = this.sinon;
-                this.res_cls = s.stub(r, "Result");
-                this.res_cls.returns(this.result);
-                s.stub(this.nodespec, "example_groups", this.groups);
+                s.stub(ns, "example_groups", this.groups);
                 // TODO: abstract out formatters better
                 this.pf_cls = s.stub(pf, "ProgressFormatter", function(ee) {
                     this.emit = s.stub(ee, "emit");
                 }.bind(this));
+                return ns;
             });
+            this.subject("groups", function() { return []; });
+            this.subject("Result", function() {
+                var res_cls = this.sinon.stub(r, "Result");
+                res_cls.returns(this.result);
+                return res_cls;
+            });
+            this.subject("result", function() { return new Object; });
             this.context("no example groups", function() {
                 this.before(function() {
                     this.exit = this.sinon.stub(process, "exit");

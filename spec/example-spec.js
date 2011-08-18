@@ -284,7 +284,7 @@ function exec_behaviour(group, options) {
             test.assert.equal(c2.args[0], "exampleComplete");
             test.assert.equal(c2.args[1], test.example);
             test.assert.equal(c2.args[2], result);
-            // examplePass(example, error)
+            // example<event>(example, error)
             var c3 = test.emitter.emit.getCall(2);
             test.assert.equal(c3.args[0], event);
             test.assert.equal(c3.args[1], test.example);
