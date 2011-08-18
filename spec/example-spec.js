@@ -123,7 +123,7 @@ nodespec.describe("Example", function() {
                 event: "examplePass"
             });
         });
-        this.context("non-async block that raises AssertionError", function() {
+        this.context("non-async block that throws AssertionError", function() {
             this.subject("block", function() {
                 var ex = this.exception;
                 return this.sinon.spy(function() { throw ex; });
@@ -165,30 +165,53 @@ nodespec.describe("Example", function() {
                 error: "exception"
             });
         });
-        this.context("async block that calls done", function() {
+        this.context("async block", function() {
             this.subject("block", function() {
-                // Bit of a hack to get a "function" with length 1 and a spy
-                var hook = this;
-                hook.block_spy = this.sinon.spy();
+                var test = this;
+                test.block_spy = test.sinon.spy();
                 return function(t) {
-                    hook.block_spy.apply(this, arguments);
+                    test.block_spy.apply(this, arguments);
                     t.done();
                 };
             });
-            this.example("should call block with context", function(test) {
+            async_exec_behaviour(this, {
+                type: "pass",
+                event: "examplePass"
+            });
+        });
+        this.context("async block that throws AssertionError", function() {
+            this.subject("block", function() {
+                var ex = this.exception;
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    process.nextTick(function() {
+                        throw ex;
+                    });
+                };
+            });
+            var group_name = this.description;
+            this.subject("exception", function() {
+                return new AssertionError({message: group_name});
+            });
+            async_exec_behaviour(this, {
+                type: "fail",
+                event: "exampleFail",
+                error: "exception"
+            });
+            this.example("should return fail result", function(test) {
                 test.expect(3);
-                test.example.exec(test.emitter, function() {
-                    test.sinon.assert.calledOnce(test.block_spy);
-                    var call = test.block_spy.getCall(0);
-                    test.assert.notEqual(call.thisValue, test.context);
-                    test.assert.equal(call.args[0], test.context);
+                test.example.exec(test.emitter, function(err, result) {
+                    test.assert.equal(err, null);
+                    test.assert.ok(result instanceof SingleResult);
+                    test.assert.equal(result.type, "fail");
                     test.done();
                 });
             });
         });
         this.context("async block that doesn't call done", function() {
             this.subject("block", function() {
-                // Bit of a hack to get a function with length 1 and a spy
                 var test = this;
                 test.sinon.useFakeTimers();
                 test.block_spy = this.sinon.spy();
@@ -201,11 +224,10 @@ nodespec.describe("Example", function() {
             });
             this.example("should error out after timeout", function(test) {
                 test.expect(1);
-                var after_exec = test.sinon.spy();
                 test.example.exec(test.emitter, function(err, result) {
                     test.assert.equal(result.type, "error");
                     test.done();
-                });
+                }).timeout_after(6);
             });
         });
     });
@@ -213,7 +235,6 @@ nodespec.describe("Example", function() {
 nodespec.exec();
 
 function sync_exec_behaviour(group, options) {
-    var type = options.type, event = options.event, error = options.error;
     group.example("should run block in context", function(test) {
         test.expect(3);
         test.example.exec(test.emitter, function() {
@@ -224,6 +245,23 @@ function sync_exec_behaviour(group, options) {
             test.done();
         });
     });
+    exec_behaviour(group, options);
+}
+function async_exec_behaviour(group, options) {
+    group.example("should call block with context", function(test) {
+        test.expect(3);
+        test.example.exec(test.emitter, function() {
+            test.sinon.assert.calledOnce(test.block_spy);
+            var call = test.block_spy.getCall(0);
+            test.assert.notStrictEqual(call.thisValue, test.context);
+            test.assert.strictEqual(call.args[0], test.context);
+            test.done();
+        });
+    });
+    exec_behaviour(group, options);
+}
+function exec_behaviour(group, options) {
+    var type = options.type, event = options.event, error = options.error;
     group.example("should return "+type+" result", function(test) {
         test.expect(3);
         test.example.exec(test.emitter, function(err, result) {
