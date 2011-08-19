@@ -7,7 +7,7 @@ var Pending = require('../lib/exceptions').Pending,
 
 nodespec.describe("Context", function() {
     this.subject("context", function() {
-        return new context.Context(this.nodespec);
+        return new context.Context(this.nodespec, {Pending: Pending});
     });
     this.subject("nodespec", function() {
         return nodespec("copy for context");

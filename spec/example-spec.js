@@ -12,7 +12,14 @@ nodespec.describe("Example", function() {
         return new Example("example description", this.options, this.block);
     });
     this.subject("options", function() {
-        return {group: this.group, nodespec: this.nodespec};
+        return {group: this.group, nodespec: this.nodespec, deps: this.deps};
+    });
+    this.subject("deps", function() {
+        return {
+            SingleResult: SingleResult,
+            Context: context.Context,
+            Pending: Pending
+        };
     });
     this.subject("block", function() {
         return this.sinon.spy();
@@ -103,6 +110,7 @@ nodespec.describe("Example", function() {
                 return ctx;
             });
             this.ctx_cls.prototype = context.Context.prototype;
+            this.deps.Context = this.ctx_cls;
         });
         this.example("should create context using nodespec", function(test) {
             test.expect(3);
