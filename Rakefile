@@ -16,3 +16,13 @@ Code to Test Ratio: 1:%0.4f
 Code to Test+Cucumber Ratio: 1:%0.4f
   STATS
 end
+
+desc "Build the API documentation"
+task(:api) do
+  system("NaturalDocs \
+            -i lib \
+            -o HTML documentation/api \
+            -p .naturaldocs \
+            -s Default documentation
+  ")
+end

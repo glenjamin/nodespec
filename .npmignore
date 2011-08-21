@@ -7,3 +7,5 @@ node_modules
 cucumber.yml
 TODO
 documentation
+.naturaldocs
+documentation.css
