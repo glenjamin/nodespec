@@ -122,6 +122,15 @@ nodespec.describe("Example", function() {
                 test.done();
             });
         });
+        this.context("no block", function() {
+            this.subject("block", function() {
+                return undefined;
+            });
+            exec_behaviour(this, {
+                type: "pend",
+                event: "examplePend"
+            });
+        });
         this.context("non-async block", function() {
             this.subject("block", function() {
                 return this.sinon.spy();
@@ -187,35 +196,118 @@ nodespec.describe("Example", function() {
                 event: "examplePass"
             });
         });
-        this.context("async block that throws AssertionError", function() {
+        this.context("async block throwing async AssertionError", function() {
             this.subject("block", function() {
-                var ex = this.exception;
                 var test = this;
                 test.block_spy = test.sinon.spy();
                 return function(t) {
                     test.block_spy.apply(this, arguments);
                     process.nextTick(function() {
-                        throw ex;
+                        throw test.exception;
                     });
                 };
             });
-            var group_name = this.description;
             this.subject("exception", function() {
-                return new AssertionError({message: group_name});
+                return new AssertionError({message: "block failing assertion"});
             });
             async_exec_behaviour(this, {
                 type: "fail",
                 event: "exampleFail",
                 error: "exception"
             });
-            this.example("should return fail result", function(test) {
-                test.expect(3);
-                test.example.exec(test.emitter, function(err, result) {
-                    test.assert.equal(err, null);
-                    test.assert.ok(result instanceof SingleResult);
-                    test.assert.equal(result.type, "fail");
-                    test.done();
-                });
+        });
+        this.context("async block throwing sync AssertionError", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    throw test.exception;
+                };
+            });
+            this.subject("exception", function() {
+                return new AssertionError({message: "block failing assertion"});
+            });
+            async_exec_behaviour(this, {
+                type: "fail",
+                event: "exampleFail",
+                error: "exception"
+            });
+        });
+        this.context("async block throwing async Pending", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    process.nextTick(function() {
+                        throw test.exception;
+                    });
+                };
+            });
+            this.subject("exception", function() {
+                return new Pending("test not implemented");
+            });
+            async_exec_behaviour(this, {
+                type: "pend",
+                event: "examplePend",
+                error: "exception"
+            });
+        });
+        this.context("async block throwing sync Pending", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    throw test.exception;
+                };
+            });
+            this.subject("exception", function() {
+                return new Pending("test not implemented");
+            });
+            async_exec_behaviour(this, {
+                type: "pend",
+                event: "examplePend",
+                error: "exception"
+            });
+        });
+        this.context("async block throwing async Error", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    process.nextTick(function() {
+                        throw test.exception;
+                    });
+                };
+            });
+            this.subject("exception", function() {
+                return new Error("arbitrary error");
+            });
+            async_exec_behaviour(this, {
+                type: "error",
+                event: "exampleError",
+                error: "exception"
+            });
+        });
+        this.context("async block throwing sync Error", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    throw test.exception;
+                };
+            });
+            this.subject("exception", function() {
+                return new Error("arbitrary error");
+            });
+            async_exec_behaviour(this, {
+                type: "error",
+                event: "exampleError",
+                error: "exception"
             });
         });
         this.context("async block that doesn't call done", function() {
@@ -226,16 +318,40 @@ nodespec.describe("Example", function() {
                 return function(t) {
                     test.block_spy.apply(this, arguments);
                     process.nextTick(function() {
-                        test.sinon.clock.tick(5100);
+                        test.sinon.clock.tick(4000);
                     });
                 };
+            });
+            this.before(function() {
+                this.example.timeout_after(3.5);
             });
             this.example("should error out after timeout", function(test) {
                 test.expect(1);
                 test.example.exec(test.emitter, function(err, result) {
                     test.assert.equal(result.type, "error");
                     test.done();
-                }).timeout_after(6);
+                })
+            });
+            this.example("should emit events", function(test) {
+                test.expect(10);
+                test.example.exec(test.emitter, function(err, result) {
+                    test.sinon.assert.calledThrice(test.emitter.emit);
+                    var c1 = test.emitter.emit.getCall(0);
+                    test.assert.equal(c1.args[0], "exampleStart");
+                    test.assert.equal(c1.args[1], test.example);
+                    var c2 = test.emitter.emit.getCall(1);
+                    test.assert.equal(c2.args[0], "exampleComplete");
+                    test.assert.equal(c2.args[1], test.example);
+                    test.assert.equal(c2.args[2], result);
+                    var c3 = test.emitter.emit.getCall(2);
+                    test.assert.equal(c3.args[0], "exampleError");
+                    test.assert.equal(c3.args[1], test.example);
+                    test.assert.ok(c3.args[2] instanceof Error);
+                    test.assert.ok(
+                        /done\(\) not called/.test(c3.args[2].message)
+                    );
+                    test.done();
+                })
             });
         });
     });
