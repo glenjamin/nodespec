@@ -1,6 +1,6 @@
 var nodespec = require('./common');
 
-var eg = require('../lib/example_group'),
+var eg = require('../lib/example-group'),
     r  = require('../lib/result'),
     pf = require('../lib/formatters/progress_formatter');
 
