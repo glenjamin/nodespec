@@ -1,3 +1,4 @@
+Move check expected from context to example
 Unit test existing code
 Code coverage?
 Better tests for not calling done
@@ -11,3 +12,11 @@ Full documentation
 v0.1
 Implement documentation style formatter (including base formatter class)
 Helpers - needed given that we have closures?
+
+
+KNOWN ISSUES
+------------
+
+If a test takes longer to run than the timeout, but is not stalled, and there
+is an after block defined, the after block exec will remove the done function
+causing the test to error when done is eventually called.

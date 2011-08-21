@@ -96,27 +96,24 @@ nodespec.describe("Context", function() {
             test.done();
         });
     });
-    this.describe("Checking expected assertions", function() {
-        this.example("null with expected_assertions unset", function() {
-            this.assert.equal(this.context.check_expected_assertions(), null);
-        });
-        this.example("error with expected_assertions not met", function() {
-            this.context.expect(4);
-            var result = this.context.check_expected_assertions();
-            this.assert.ok(result instanceof AssertionError);
-            this.assert.equal(result.message,
-                              "Expected 4 assertions but got 0");
+    this.describe("Checking number of assertions", function() {
+        this.subject("fake_assert", function() { return new Object });
+        this.example("0 with assert never called", function() {
+            this.assert.equal(this.context.assertions, 0);
         });
         this.example("assert references nodespec.assert", function() {
             this.nodespec.assert = this.fake_assert;
             this.assert.strictEqual(this.context.assert, this.fake_assert);
         });
-        this.example("no error when expected_assertions met", function() {
-            this.context.expect(4);
+        this.example("count of accesses to assert", function() {
             this.context.assert; this.context.assert;
             this.context.assert; this.context.assert;
-            var result = this.context.check_expected_assertions();
-            this.assert.equal(this.context.check_expected_assertions(), null);
+            this.assert.equal(this.context.assertions, 4);
+        });
+        this.example("can also be incremented explicitly", function() {
+            this.context.assert;
+            this.context.assertions += 2;
+            this.assert.equal(this.context.assertions, 3);
         });
     });
 });
