@@ -88,3 +88,11 @@ Topic Type: Constructor
 
    Keywords:
       constructor
+
+
+Alter Topic Type: Event
+
+   Plural: Events
+   Index: Yes
+   Scope: Normal
+   Class Hierarchy: Yes

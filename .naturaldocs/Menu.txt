@@ -47,12 +47,12 @@ Don't Index: General, Constructors, Files, Constants
 
 File: nodespec module  (no auto-title, index.js)
 
-Group: Main Classes  {
+Group: Classes  {
 
    File: ExampleGroup  (example-group.js)
    File: Example  (example.js)
-   }  # Group: Main Classes
+   }  # Group: Classes
 
 Class Index: Full Class List
 Function Index: Method List
-Property Index: Property Index
+Property Index: Property List
