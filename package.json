@@ -4,7 +4,7 @@
 , "author": "Glen Mailer <glenjamin@gmail.com>"
 
 , "private": true
-, "version": "0.0.0dev"
+, "version": "0.0.1DEV"
 , "engines": { "node": ">= 0.4.8" }
 , "dependencies":
   { "async" : "0.1.x"
@@ -14,6 +14,9 @@
   }
 , "main": "./lib/index.js"
 , "bin": "./bin/nodespec"
+, "scripts":
+  { "test" : "node spec/all-specs.js"
+  }
 , "directories":
   { "lib": "./lib"
   , "bin": "./bin"

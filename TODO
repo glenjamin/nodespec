@@ -1,18 +1,17 @@
-Move check expected from context to example
-Unit test existing code
-Code coverage?
-Better tests for not calling done
-Configurable hook timeouts
-Proper commandline runner
 Allow forcing colour on/off & detect support via isatty
+Getting Started guide / tutorial
+Register formatters and better abstraction
+v0.1
+Unit test existing code
+Configurable hook timeouts
+Code coverage via https://github.com/substack/node-bunker
+Proper commandline runner
 Full documentation
   - getting started
   - manual
-  - API?
-v0.1
+  - API
+v0.2
 Implement documentation style formatter (including base formatter class)
-Helpers - needed given that we have closures?
-
 
 KNOWN ISSUES
 ------------
