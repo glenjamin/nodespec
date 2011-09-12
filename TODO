@@ -1,11 +1,11 @@
 Allow forcing colour on/off & detect support via isatty
 Getting Started guide / tutorial
-Register formatters and better abstraction
 v0.1
 Unit test existing code
 Configurable hook timeouts
 Code coverage via https://github.com/substack/node-bunker
 Proper commandline runner
+specify which formatters to run
 Full documentation
   - getting started
   - manual

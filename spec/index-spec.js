@@ -1,8 +1,7 @@
 var nodespec = require('./common');
 
 var eg = require('../lib/example-group'),
-    r  = require('../lib/result'),
-    pf = require('../lib/formatters/progress_formatter');
+    r  = require('../lib/result');
 
 var Module = require('module').Module;
 
@@ -194,13 +193,16 @@ nodespec.describe("Nodespec", function() {
                                   { Result: this.Result });
                 var s = this.sinon;
                 s.stub(ns, "example_groups", this.groups);
-                // TODO: abstract out formatters better
-                this.pf_cls = s.stub(pf, "ProgressFormatter", function(ee) {
-                    this.emit = s.stub(ee, "emit");
-                }.bind(this));
+                s.stub(ns, "formatters", [this.formatter]);
                 return ns;
             });
             this.subject("groups", function() { return []; });
+            this.subject("formatter", function() {
+                var test = this;
+                return { init: function(emitter) {
+                    test.emit = test.sinon.stub(emitter, "emit");
+                }}
+            });
             this.subject("Result", function() {
                 var res_cls = this.sinon.stub(r, "Result");
                 res_cls.returns(this.result);
