@@ -1,5 +1,5 @@
 ========
-NodeSpec
+nodespec
 ========
 
 A light-weight RSpec_-esque testing framework designed and built
@@ -20,15 +20,15 @@ Features
 
  *  RSpec style syntactic sugar
 
-    *  Nested contexts **(not yet implemented)**
+    *  Nested contexts
     *  Easy to use setup/teardown
-    *  Subject helpers **(not yet implemented)**
+    *  Subject helpers
 
- *  Pluggable mocking support **(not yet implemented)**
+ *  Pluggable mocking support
 
  *  Native assertions
 
- *  Easy to extend or replace the default assertions **(not yet implemented)**
+ *  Easy to extend or replace the default assertions
 
  *  Multiple output formatters on the same test run **(not yet implemented)**
 
@@ -67,11 +67,9 @@ To be able to run cucumber, you'll need Ruby and Bundler installed, then do `bun
 Installation
 ============
 
-Until there's something worth using, I won't be publishing to npm.
+Via npm::
 
-For the moment just install via github tarball::
-
-    npm install https://github.com/glenjamin/nodespec/tarball/master
+    npm install nodespec
 
 Or clone directly from github::
 
