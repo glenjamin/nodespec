@@ -1,6 +1,41 @@
-<div class="document">
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+
+  <title>glenjamin/nodespec @ GitHub</title>
+
+  <style type="text/css">
+    body {
+      margin-top: 1.0em;
+      background-color: #f5f5e0;
+      font-family: Helvetica, Arial, FreeSans, san-serif;
+      color: #000000;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+    h1 { font-size: 3.8em; color: #0a0a1f; margin-bottom: 3px; }
+    h1 .small { font-size: 0.4em; }
+    h1 a { text-decoration: none }
+    h2 { font-size: 1.5em; color: #0a0a1f; }
+    h3 { text-align: center; color: #0a0a1f; }
+    a { color: #0a0a1f; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+    pre { background: #000; color: #fff; padding: 15px; line-height: 1.2; font-size: 1.1em; }
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    ul { line-height: 1.5; }
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+  </style>
+</head>
+
+<body>
+<a href="http://github.com/glenjamin/nodespec"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+<div id="container">
 <div class="section" id="nodespec">
-<h1>NodeSpec</h1>
+<h1>nodespec</h1>
 <p>A light-weight <a class="reference external" href="http://relishapp.com/rspec">RSpec</a>-esque testing framework designed and built
 specifically for NodeJS.</p>
 <div class="contents local topic" id="contents">
@@ -20,14 +55,14 @@ specifically for NodeJS.</p>
 <li>Only one test running at a time</li>
 <li><strong>No global variables</strong></li>
 <li>RSpec style syntactic sugar<ul>
-<li>Nested contexts <strong>(not yet implemented)</strong></li>
+<li>Nested contexts</li>
 <li>Easy to use setup/teardown</li>
-<li>Subject helpers <strong>(not yet implemented)</strong></li>
+<li>Subject helpers</li>
 </ul>
 </li>
-<li>Pluggable mocking support <strong>(not yet implemented)</strong></li>
+<li>Pluggable mocking support</li>
 <li>Native assertions</li>
-<li>Easy to extend or replace the default assertions <strong>(not yet implemented)</strong></li>
+<li>Easy to extend or replace the default assertions</li>
 <li>Multiple output formatters on the same test run <strong>(not yet implemented)</strong></li>
 </ul>
 </blockquote>
@@ -61,10 +96,9 @@ if you're adding a new feature, please add cucumber feature file for it.</p>
 </div>
 <div class="section" id="installation">
 <h2><a class="toc-backref" href="#id3">Installation</a></h2>
-<p>Until there's something worth using, I won't be publishing to npm.</p>
-<p>For the moment just install via github tarball:</p>
+<p>Via npm:</p>
 <pre class="literal-block">
-npm install https://github.com/glenjamin/nodespec/tarball/master
+npm install nodespec
 </pre>
 <p>Or clone directly from github:</p>
 <pre class="literal-block">
@@ -88,19 +122,19 @@ nodespec.exec();
 nodespec.describe(&quot;Addition&quot;, function() {
     this.example(&quot;1 + 1 = 2&quot;, function() {
         this.assert.equal(1 + 1, 2);
-        // Return non-undefined to indicate not async
-        return true;
     });
 });
 </pre>
 <p>Simple async spec:</p>
 <pre class="literal-block">
 nodespec.describe(&quot;nextTick&quot;, function() {
+    // Accept 1 argument in the definition for an async test
     this.example(&quot;fires the callback&quot;, function(test) {
         this.expect(2);
         this.assert.strictEqual(this, test);
         process.nextTick(function() {
             this.assert.strictNotEqual(this, test);
+            // async tests must call test.done()
             test.done();
         });
     });
@@ -122,7 +156,6 @@ nodespec.describe(&quot;Some databasey test&quot;, function() {
     });
     this.after(function() {
         this.tx.rollback();
-        return true; // not async
     });
     this.example(&quot;database interaction&quot;, function(test) {
         test.expect(2);
@@ -146,7 +179,6 @@ nodespec.describe(&quot;My Server&quot;, function() {
     this.context(&quot;Strict Mode&quot;, function() {
         this.before(function() {
             this.server.use_strict_mode();
-            this.done();
         });
         this.example(&quot;invalid request fails&quot;, function(test) {
             test.expect(1);
@@ -159,7 +191,6 @@ nodespec.describe(&quot;My Server&quot;, function() {
     this.context(&quot;Not Strict Mode&quot;, function() {
         this.before(function() {
             this.server.dont_use_strict_mode();
-            this.done();
         });
         this.example(&quot;invalid request fails silently&quot;, function(test) {
             test.expect(2);
@@ -180,3 +211,5 @@ nodespec.describe(&quot;My Server&quot;, function() {
 </div>
 </div>
 
+</body>
+</html>
