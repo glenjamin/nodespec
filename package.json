@@ -3,13 +3,14 @@
 , "homepage": "https://github.com/glenjamin/nodespec"
 , "author": "Glen Mailer <glenjamin@gmail.com>"
 
-, "version": "0.1.0"
-, "engines": { "node": ">= 0.4.8" }
+, "version": "0.2.0DEV"
+, "engines": { "node": ">= 0.4.x" }
 , "dependencies":
   { "async" : "0.1.x"
   }
 , "devDependencies":
   { "sinon" : "1.1.x"
+  , "tracey" : "0.1.x"
   }
 , "main": "./lib/index.js"
 , "bin": "./bin/nodespec"
