@@ -3,3 +3,4 @@ tmp
 documentation
 .naturaldocs/Data
 .DS_Store
+node_modules/*
