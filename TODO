@@ -1,4 +1,3 @@
-node-tracey refactor
 Unit test existing code
 Configurable hook timeouts
 Code coverage via https://github.com/substack/node-bunker
