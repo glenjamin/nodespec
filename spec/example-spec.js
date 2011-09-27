@@ -389,7 +389,7 @@ nodespec.describe("Example", function() {
                 })
             });
             this.example("should emit events", function(test) {
-                test.expect(10);
+                test.expect(11);
                 test.example.exec(test.emitter, function(err, result) {
                     test.sinon.assert.calledThrice(test.emitter.emit);
                     var c1 = test.emitter.emit.getCall(0);
@@ -403,6 +403,7 @@ nodespec.describe("Example", function() {
                     test.assert.equal(c3.args[0], "exampleError");
                     test.assert.equal(c3.args[1], test.example);
                     test.assert.ok(c3.args[2] instanceof Error);
+                    test.assert.ok(!(c3.args[2] instanceof AssertionError));
                     test.assert.ok(
                         /done\(\) not called/.test(c3.args[2].message)
                     );
