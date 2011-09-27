@@ -141,7 +141,8 @@ nodespec.describe("Example", function() {
             });
             sync_exec_behaviour(this, {
                 type: "pass",
-                event: "examplePass"
+                event: "examplePass",
+                error: null
             });
         });
         this.context("non-async block that throws AssertionError", function() {
@@ -186,6 +187,24 @@ nodespec.describe("Example", function() {
                 error: "exception"
             });
         });
+        this.context("non-async block with wrong assertion count", function() {
+            this.before(function() {
+                this.context.assertions = 3;
+                this.context.expected_assertions = 5;
+            });
+            sync_exec_behaviour(this, {
+                type: "fail",
+                event: "exampleFail",
+            });
+            this.example("result is assertion error", function(test) {
+                test.example.exec(test.emitter, function(err, result) {
+                    test.assert.ok(result.error instanceof AssertionError);
+                    test.assert.ok(/expected 5/i.test(result.error.message));
+                    test.assert.ok(/got 3/i.test(result.error.message));
+                    test.done();
+                });
+            });
+        });
         this.context("async block", function() {
             this.subject("block", function() {
                 var test = this;
@@ -197,7 +216,8 @@ nodespec.describe("Example", function() {
             });
             async_exec_behaviour(this, {
                 type: "pass",
-                event: "examplePass"
+                event: "examplePass",
+                error: null
             });
         });
         this.context("async block throwing async AssertionError", function() {
@@ -413,6 +433,32 @@ nodespec.describe("Example", function() {
                 })
             });
         });
+        this.context("async block with wrong assertion count", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = this.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    process.nextTick(function() {
+                        t.assertions = 10;
+                        t.expected_assertions = 4;
+                        process.nextTick(t.done);
+                    });
+                };
+            });
+            async_exec_behaviour(this, {
+                type: "fail",
+                event: "exampleFail",
+            });
+            this.example("result is assertion error", function(test) {
+                test.example.exec(test.emitter, function(err, result) {
+                    test.assert.ok(result.error instanceof AssertionError);
+                    test.assert.ok(/expected 4/i.test(result.error.message));
+                    test.assert.ok(/got 10/i.test(result.error.message));
+                    test.done();
+                });
+            });
+        });
     });
     this.describe("subjects", function() {
         this.context("one subject", function() {
@@ -555,7 +601,7 @@ function async_exec_behaviour(group, options) {
     exec_behaviour(group, options);
 }
 function exec_behaviour(group, options) {
-    var type = options.type, event = options.event, error = options.error;
+    var type = options.type, event = options.event;
     group.example("should return "+type+" result", function(test) {
         test.expect(3);
         test.example.exec(test.emitter, function(err, result) {
@@ -566,7 +612,7 @@ function exec_behaviour(group, options) {
         });
     });
     group.example("should emit events", function(test) {
-        test.expect(9);
+        test.expect('error' in options ? 9 : 8);
         test.example.exec(test.emitter, function(err, result) {
             test.sinon.assert.calledThrice(test.emitter.emit);
             // exampleStart(example)
@@ -582,7 +628,10 @@ function exec_behaviour(group, options) {
             var c3 = test.emitter.emit.getCall(2);
             test.assert.equal(c3.args[0], event);
             test.assert.equal(c3.args[1], test.example);
-            test.assert.equal(c3.args[2], error ? test[error] : error);
+            if ('error' in options) {
+                var error = options.error && test[options.error];
+                test.assert.equal(c3.args[2], error);
+            }
             test.done();
         })
     });
