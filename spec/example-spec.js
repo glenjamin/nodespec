@@ -24,14 +24,37 @@ nodespec.describe("Example", function() {
     this.subject("block", function() {
         return this.sinon.spy();
     });
+    this.subject("context", function() {
+        var context = new Object;
+        context._setup_done = this.sinon.spy(function(done) {
+            if (done) { context.done = done; }
+        });
+        context.assert = require('assert');
+        context.check_expected_assertions = this.sinon.stub();
+        return context;
+    });
+    this.before(function() {
+        var ctx = this.context;
+        this.ctx_cls = this.sinon.stub(context, 'Context', function() {
+            return ctx;
+        });
+        this.ctx_cls.prototype = context.Context.prototype;
+        this.deps.Context = this.ctx_cls;
+    });
+    this.subject("emitter", function() {
+        var emitter = new Object;
+        emitter.emit = this.sinon.spy();
+        return emitter;
+    });
     this.subject("group", function() {
         var group = new Object;
         group.full_description = "group description";
         group.before_hooks = [];
         group.after_hooks = [];
-        group.subjects = [];
+        group.subjects = this.subjects;
         return group;
     });
+    this.subject("subjects", function() { return {}; });
     this.subject("nodespec", function() {
         return nodespec("target for testing");
     });
@@ -91,27 +114,6 @@ nodespec.describe("Example", function() {
         });
     });
     this.describe("exec", function() {
-        this.subject("context", function() {
-            var context = new Object;
-            context._setup_done = this.sinon.spy(function(done) {
-                if (done) { context.done = done; }
-            });
-            context.check_expected_assertions = this.sinon.stub();
-            return context;
-        });
-        this.subject("emitter", function() {
-            var emitter = new Object;
-            emitter.emit = this.sinon.spy();
-            return emitter;
-        });
-        this.before(function() {
-            var ctx = this.context;
-            this.ctx_cls = this.sinon.stub(context, 'Context', function() {
-                return ctx;
-            });
-            this.ctx_cls.prototype = context.Context.prototype;
-            this.deps.Context = this.ctx_cls;
-        });
         this.example("should create context using nodespec", function(test) {
             test.expect(4);
             test.example.exec(test.emitter, function() {
@@ -412,8 +414,119 @@ nodespec.describe("Example", function() {
             });
         });
     });
+    this.describe("subjects", function() {
+        this.context("one subject", function() {
+            this.subject("subjects", function() {
+                return { subject: this.subject_dfn }
+            });
+            this.subject("subject_spy", function() {
+                return this.sinon.spy();
+            });
+            this.subject("subject_dfn", function() {
+                var spy = this.subject_spy;
+                return function() {
+                    spy();
+                    return new Object;
+                }
+            });
+            var describe_block = block_example.bind(this);
+            describe_block("lazy eval in sync mode",
+                function block() {
+                    this.assert.strictEqual(this.subject, this.subject);
+                },
+                function example_exec(test, result) {
+                    test.expect(2);
+                    test.assert.ifError(result.error);
+                    test.sinon.assert.calledOnce(test.subject_spy);
+                    test.done();
+                }
+            );
+            describe_block("lazy eval in async mode",
+                function block(test) {
+                    process.nextTick(function() {
+                        test.assert.strictEqual(test.subject, test.subject);
+                        process.nextTick(test.done);
+                    })
+                },
+                function example_exec(test, result) {
+                    test.expect(2);
+                    test.assert.ifError(result.error);
+                    test.sinon.assert.calledOnce(test.subject_spy);
+                    test.done();
+                }
+            );
+        });
+        this.context("multiple subjects", function() {
+            this.subject("subjects", function() {
+                return { one: this.one_dfn, two: this.two_dfn,
+                         three: this.three_dfn, four: this.four_dfn }
+            });
+            this.subject("one_spy", function() { return this.sinon.spy(); });
+            this.subject("two_spy", function() { return this.sinon.spy(); });
+            this.subject("three_spy", function() { return this.sinon.spy(); });
+            this.subject("four_spy", function() { return this.sinon.spy(); });
+            this.subject("one_dfn", function() {
+                var spy = this.one_spy;
+                return function() { spy(); return new Object; }
+            });
+            this.subject("two_dfn", function() {
+                var spy = this.two_spy;
+                return function() { spy(); return new Object; }
+            });
+            this.subject("three_dfn", function() {
+                var spy = this.three_spy;
+                return function() { spy(); return new Object; }
+            });
+            this.subject("four_dfn", function() {
+                var spy = this.four_spy;
+                return function() { spy(); return { two: this.two }; }
+            });
+            var describe_block = block_example.bind(this);
+            describe_block("calling multiple, but not all",
+                function block() {
+                    this.assert.notStrictEqual(this.one, this.two);
+                    this.assert.notStrictEqual(this.two, this.four);
+                    this.assert.strictEqual(this.one, this.one);
+                    this.assert.strictEqual(this.two, this.two);
+                    this.assert.strictEqual(this.four, this.four);
+                },
+                function example_exec(test, result) {
+                    test.expect(5);
+                    test.assert.ifError(result.error);
+                    test.sinon.assert.calledOnce(test.one_spy);
+                    test.sinon.assert.calledOnce(test.two_spy);
+                    test.sinon.assert.notCalled(test.three_spy);
+                    test.sinon.assert.calledOnce(test.four_spy);
+                    test.done();
+                }
+            );
+            describe_block("using each other",
+                function block() {
+                    this.assert.strictEqual(this.four.two, this.two);
+                },
+                function example_exec(test, result) {
+                    test.expect(3);
+                    test.assert.ifError(result.error);
+                    test.sinon.assert.calledOnce(test.four_spy);
+                    test.sinon.assert.calledOnce(test.two_spy);
+                    test.done();
+                }
+            );
+        });
+    });
 });
 nodespec.exec();
+
+function block_example(body_desc, block, body) {
+    this.context("", function() {
+        this.subject("block", function() { return block; });
+        this.example(body_desc, function(test) {
+            test.example.exec(test.emitter, function(err, result) {
+                body(test, result);
+            });
+        });
+    });
+}
 
 function sync_exec_behaviour(group, options) {
     group.example("should run block in context", function(test) {
