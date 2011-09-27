@@ -113,12 +113,14 @@ nodespec.describe("Example", function() {
             this.deps.Context = this.ctx_cls;
         });
         this.example("should create context using nodespec", function(test) {
-            test.expect(3);
+            test.expect(4);
             test.example.exec(test.emitter, function() {
                 test.sinon.assert.calledOnce(test.ctx_cls);
                 var call = test.ctx_cls.getCall(0);
                 test.assert.ok(call.thisValue instanceof context.Context);
                 test.assert.strictEqual(call.args[0], test.nodespec);
+                test.assert.strictEqual(call.args[1].Pending,
+                                        test.deps.Pending);
                 test.done();
             });
         });
