@@ -156,7 +156,7 @@ nodespec.describe("Example", function() {
                 error: "exception"
             });
         });
-        this.context("non-async block that raises Pending", function() {
+        this.context("non-async block that throws Pending", function() {
             this.subject("block", function() {
                 var ex = this.exception;
                 return this.sinon.spy(function() { throw ex; });
@@ -218,6 +218,24 @@ nodespec.describe("Example", function() {
                 error: "exception"
             });
         });
+        this.context("async block calling back AssertionError", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    t.done(test.exception);
+                };
+            });
+            this.subject("exception", function() {
+                return new AssertionError({message: "block failing assertion"});
+            });
+            async_exec_behaviour(this, {
+                type: "fail",
+                event: "exampleFail",
+                error: "exception"
+            });
+        });
         this.context("async block throwing sync AssertionError", function() {
             this.subject("block", function() {
                 var test = this;
@@ -256,6 +274,24 @@ nodespec.describe("Example", function() {
                 error: "exception"
             });
         });
+        this.context("async block calling back Pending", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    t.done(test.exception);
+                };
+            });
+            this.subject("exception", function() {
+                return new Pending("test not implemented");
+            });
+            async_exec_behaviour(this, {
+                type: "pend",
+                event: "examplePend",
+                error: "exception"
+            });
+        });
         this.context("async block throwing sync Pending", function() {
             this.subject("block", function() {
                 var test = this;
@@ -283,6 +319,24 @@ nodespec.describe("Example", function() {
                     process.nextTick(function() {
                         throw test.exception;
                     });
+                };
+            });
+            this.subject("exception", function() {
+                return new Error("arbitrary error");
+            });
+            async_exec_behaviour(this, {
+                type: "error",
+                event: "exampleError",
+                error: "exception"
+            });
+        });
+        this.context("async block calling back Error", function() {
+            this.subject("block", function() {
+                var test = this;
+                test.block_spy = test.sinon.spy();
+                return function(t) {
+                    test.block_spy.apply(this, arguments);
+                    t.done(test.exception);
                 };
             });
             this.subject("exception", function() {
