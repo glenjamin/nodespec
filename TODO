@@ -1,14 +1,27 @@
 Unit test existing code
+  - Example before
+  - Example after
+  - ExampleGroup
 Configurable hook timeouts
 Code coverage via https://github.com/substack/node-bunker
 Proper commandline runner
-specify which formatters to run
+Formatter refactor
+  - base class
+  - unit tests
+  - config options
+  - specify which formatters to run
 Allow forcing colour on/off & detect support via isatty
 Full documentation
   - getting started
   - manual
   - API
-Implement documentation style formatter (including base formatter class)
+More formatters
+  - documentation (specdoc)
+  - TAP
+  - xunit
+  - html
+  - multipage html?
+  - pdf?
 v0.2
 
 KNOWN ISSUES
