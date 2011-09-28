@@ -17,12 +17,18 @@ nodespec.describe("Example", function() {
     this.subject("deps", function() {
         return {
             SingleResult: SingleResult,
-            Context: context.Context,
+            Context: this.context_cls,
             Pending: Pending
         };
     });
     this.subject("block", function() {
         return this.sinon.spy();
+    });
+    this.subject("context_cls", function() {
+        var test = this;
+        return this.sinon.spy(function() {
+            return test.context;
+        });
     });
     this.subject("context", function() {
         var context = new Object;
@@ -30,16 +36,7 @@ nodespec.describe("Example", function() {
             if (done) { context.done = done; }
         });
         context.assert = require('assert');
-        context.check_expected_assertions = this.sinon.stub();
         return context;
-    });
-    this.before(function() {
-        var ctx = this.context;
-        this.ctx_cls = this.sinon.stub(context, 'Context', function() {
-            return ctx;
-        });
-        this.ctx_cls.prototype = context.Context.prototype;
-        this.deps.Context = this.ctx_cls;
     });
     this.subject("emitter", function() {
         var emitter = new Object;
@@ -117,9 +114,9 @@ nodespec.describe("Example", function() {
         this.example("should create context using nodespec", function(test) {
             test.expect(4);
             test.example.exec(test.emitter, function() {
-                test.sinon.assert.calledOnce(test.ctx_cls);
-                var call = test.ctx_cls.getCall(0);
-                test.assert.ok(call.thisValue instanceof context.Context);
+                test.sinon.assert.calledOnce(test.context_cls);
+                var call = test.context_cls.getCall(0);
+                test.assert.ok(call.thisValue instanceof test.context_cls);
                 test.assert.strictEqual(call.args[0], test.nodespec);
                 test.assert.strictEqual(call.args[1].Pending,
                                         test.deps.Pending);
