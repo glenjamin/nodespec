@@ -9,7 +9,7 @@
   { "async" : "0.1.x"
   }
 , "devDependencies":
-  { "sinon" : "1.1.x"
+  { "sinon" : "1.2.x"
   , "tracey" : "0.1.x"
   }
 , "main": "./lib/index.js"
