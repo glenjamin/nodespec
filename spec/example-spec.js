@@ -46,12 +46,14 @@ nodespec.describe("Example", function() {
   this.subject("group", function() {
     var group = new Object;
     group.full_description = "group description";
-    group.before_hooks = [];
-    group.after_hooks = [];
+    group.before_hooks = this.before_hooks;
+    group.after_hooks = this.after_hooks;
     group.subjects = this.subjects;
     return group;
   });
   this.subject("subjects", function() { return {}; });
+  this.subject("before_hooks", function() { return []; });
+  this.subject("after_hooks", function() { return []; });
   this.subject("nodespec", function() {
     return nodespec("target for testing");
   });
@@ -115,8 +117,8 @@ nodespec.describe("Example", function() {
       test.expect(4);
       test.example.exec(test.emitter, function() {
         test.sinon.assert.calledOnce(test.context_cls);
+        test.assert.ok(test.context_cls.calledWithNew());
         var call = test.context_cls.getCall(0);
-        test.assert.ok(call.thisValue instanceof test.context_cls);
         test.assert.strictEqual(call.args[0], test.nodespec);
         test.assert.strictEqual(call.args[1].Pending,
                     test.deps.Pending);
@@ -552,6 +554,28 @@ nodespec.describe("Example", function() {
           test.assert.ifError(result.error);
           test.sinon.assert.calledOnce(test.four_spy);
           test.sinon.assert.calledOnce(test.two_spy);
+          test.done();
+        }
+      );
+    });
+  });
+  this.describe("before", function() {
+    this.context("one sync hook", function() {
+      var mock = new Object;
+      this.subject("before_hooks", function() {
+        return [this.sinon.spy(function() {
+          this.variable_before = mock;
+        })];
+      });
+      var describe_block = block_example.bind(this);
+      describe_block("accessing variables that were setup",
+        function block() {
+          this.assert.strictEqual(this.variable_before, mock);
+        },
+        function example_exec(test, result) {
+          test.expect(2);
+          test.assert.ifError(result.error);
+          test.sinon.assert.calledOnce(test.before_hooks[0]);
           test.done();
         }
       );
