@@ -52,6 +52,39 @@ Scenario: Named subjects
     Then the exit status should be 0
     And the output should contain "1 passed"
 
+Scenario: Calling each other and overwriting
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec')
+    nodespec.describe("Context with subject", function() {
+        this.subject(function() {
+            return this.other;
+        });
+        this.subject("other", function() {
+            return 1;
+        });
+        this.example("Subject calls another", function() {
+            this.assert.equal(this.subject, 1);
+        });
+        this.example("Replace subject in body", function() {
+            this.other = 2;
+            this.assert.equal(this.subject, 2);
+        });
+        this.example("Replace subject after use", function() {
+            // Note lazy evaluation
+            this.assert.equal(this.subject, 1);
+            this.assert.equal(this.other, 1);
+            this.other = 2;
+            this.assert.equal(this.subject, 1);
+            this.assert.equal(this.other, 2);
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 0
+    And the output should contain "3 passed"
+
 Scenario: Nesting subjects
     Given a file named "basic-spec.js" with:
     """
