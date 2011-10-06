@@ -199,7 +199,7 @@ Scenario: Everything, including colour
     Then the exit status should be 2
     And the output should contain:
     """
-    [32m.[31mF[33m*[36mE[39m
+    [32m.[39m[31mF[39m[33m*[39m[36mE[39m
 
     [33mPending:[39m
 
