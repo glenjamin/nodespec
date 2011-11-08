@@ -4,7 +4,7 @@
 , "author": "Glen Mailer <glenjamin@gmail.com>"
 
 , "version": "0.2.0DEV"
-, "engines": { "node": ">= 0.4.x" }
+, "engines": { "node": "0.4.x || 0.6.x" }
 , "dependencies":
   { "async" : "0.1.x"
   , "tracey" : "0.2.x"
