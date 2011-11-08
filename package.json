@@ -1,34 +1,43 @@
-{ "name": "nodespec"
-, "description": "A light-weight RSpec-esque testing framework"
-, "homepage": "https://github.com/glenjamin/nodespec"
-, "author": "Glen Mailer <glenjamin@gmail.com>"
-
-, "version": "0.2.0DEV"
-, "engines": { "node": "0.4.x || 0.6.x" }
-, "dependencies":
-  { "async" : "0.1.x"
-  , "tracey" : "0.2.x"
-  }
-, "devDependencies":
-  { "sinon" : "1.2.x"
-  }
-, "main": "./lib/index.js"
-, "bin": "./bin/nodespec"
-, "scripts":
-  { "test" : "node spec/all-specs.js"
-  }
-, "directories":
-  { "lib": "./lib"
-  , "bin": "./bin"
-  , "doc": "./doc"
-  }
-, "repository":
-  { "type": "git"
-  , "url": "http://github.com/glenjamin/nodespec.git"
-  }
-, "licenses":
-  [ { "type" : "MIT"
-    , "url" : "http://github.com/glenjamin/nodespec/master/LICENSE"
+{
+  "name": "nodespec",
+  "description": "A light-weight RSpec-esque testing framework",
+  "homepage": "https://github.com/glenjamin/nodespec",
+  "author": "Glen Mailer <glenjamin@gmail.com>",
+  "version": "0.2.0",
+  "engines": {
+    "node": "0.4.x || 0.6.x"
+  },
+  "dependencies": {
+    "async": "0.1.x",
+    "tracey": "0.2.x"
+  },
+  "devDependencies": {
+    "sinon": "1.2.x"
+  },
+  "main": "./lib/index.js",
+  "bin": {
+    "nodespec": "./bin/nodespec"
+  },
+  "scripts": {
+    "test": "node spec/all-specs.js"
+  },
+  "directories": {
+    "lib": "./lib",
+    "bin": "./bin",
+    "doc": "./doc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/glenjamin/nodespec.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/glenjamin/nodespec/master/LICENSE"
     }
+  ],
+  "contributors": [
+    "Authors listed in order of first contribution",
+    "Glen Mailer <glenjamin@gmail.com>"
   ]
 }
