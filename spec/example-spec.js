@@ -172,6 +172,26 @@ nodespec.describe("Example", function() {
         error: "exception"
       });
     });
+    this.context("non-async block with no assertions", function() {
+      this.subject("block", function() {
+        var test = this;
+        return test.sinon.spy(function() {
+          test.context.assertions = 0;
+          1 + 1;
+        });
+      });
+      sync_exec_behaviour(this, {
+        type: "pend",
+        event: "examplePend",
+      });
+      this.example("result is Pending error", function(test) {
+        test.example.exec(test.emitter, function(err, result) {
+          test.assert.ok(result.error instanceof Pending);
+          test.assert.ok(/zero assertions/i.test(result.error.message));
+          test.done();
+        });
+      });
+    });
     this.context("non-async block with ordinary error", function() {
       this.subject("block", function() {
         var ex = this.exception;
@@ -329,6 +349,28 @@ nodespec.describe("Example", function() {
         type: "pend",
         event: "examplePend",
         error: "exception"
+      });
+    });
+    this.context("async block with no assertions", function() {
+      this.subject("block", function() {
+        var test = this;
+        test.block_spy = test.sinon.spy();
+        return function(t) {
+          test.block_spy.apply(this, arguments);
+          t.assertions = 0;
+          t.done();
+        };
+      });
+      async_exec_behaviour(this, {
+        type: "pend",
+        event: "examplePend",
+      });
+      this.example("result is Pending error", function(test) {
+        test.example.exec(test.emitter, function(err, result) {
+          test.assert.ok(result.error instanceof Pending);
+          test.assert.ok(/zero assertions/i.test(result.error.message));
+          test.done();
+        });
       });
     });
     this.context("async block throwing async Error", function() {

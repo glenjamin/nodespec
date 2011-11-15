@@ -3,6 +3,21 @@ Feature: Expectation counts
     I want to: Ensure the correct number of assertions run
     So that: I can test async code reliably
 
+Scenario: Pending with no assertions
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Expectation counts", function() {
+        this.example("no assertions", function() {
+            var a = 1 + 2;
+            a == 3;
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 0
+    And the output should contain "1 pending"
 
 Scenario: Correct number of assertions
     Given a file named "basic-spec.js" with:

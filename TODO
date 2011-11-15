@@ -1,3 +1,7 @@
+Better syntax for test definition?
+  - ExampleGroup.should
+  - this("example")
+  - describe("sdsd", function(it) {})
 Unit test existing code
   - Example before
   - Example after
