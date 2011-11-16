@@ -1,12 +1,12 @@
 Gemfile
 Gemfile.lock
 Rakefile
-tmp
-features
-node_modules
+tmp/
+features/
+node_modules/
 cucumber.yml
 TODO
-documentation
-.naturaldocs
+documentation/
+.naturaldocs/
 documentation.css
 .gitignore
