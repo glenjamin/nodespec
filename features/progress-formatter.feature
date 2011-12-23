@@ -8,10 +8,10 @@ Scenario: Passing tests only
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("Test 1", function() {  });
-        this.example("Test 2", function() {  });
-        this.example("Test 3", function() {  });
-        this.example("Test 4", function() {  });
+        this.example("Test 1", function() { this.assert.ok(true); });
+        this.example("Test 2", function() { this.assert.ok(true); });
+        this.example("Test 3", function() { this.assert.ok(true); });
+        this.example("Test 4", function() { this.assert.ok(true); });
     });
     nodespec.exec();
     """
@@ -29,16 +29,17 @@ Scenario: Some failing tests
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("Test 1", function() {  });
+        this.example("Test 1", function() { this.assert.ok(true); });
         this.example("Test 2", function() {
             this.assert.ok(false);
         });
         this.example("Test 3", function() {
             this.assert.strictEqual('1', 1);
         });
-        this.example("Test 4", function() {  });
+        this.example("Test 4", function() { this.assert.ok(true); });
         this.example("Test 5", function() {
-            this.expect(1);
+            this.expect(2);
+            this.assert.ok(true);
         });
         this.example("Test 6", function() {
             var msg = "But with a custom message";
@@ -68,10 +69,10 @@ Scenario: Some failing tests
 
       3) Dummy Tests Test 5
          // ./basic-spec.js:11
-           Expected 1 assertions but got 0
+           Expected 2 assertions but got 1
 
       4) Dummy Tests Test 6
-         // ./basic-spec.js:16
+         // ./basic-spec.js:17
          this.assert.ok(false, msg);
            But with a custom message
     """
@@ -82,8 +83,8 @@ Scenario: Some pending tests
     """
     var nodespec = require('nodespec');
     nodespec.describe("Dummy Tests", function() {
-        this.example("Test 1", function() {  });
-        this.example("Test 2", function() {  });
+        this.example("Test 1", function() { this.assert.ok(true); });
+        this.example("Test 2", function() { this.assert.ok(true); });
         this.example("Test 3");
         this.example("Test 4", function() {
             this.pending("For this reason");
@@ -130,7 +131,7 @@ Scenario: Some errored tests
             a + b
         });
         this.example("Test 2", function() {
-
+            this.assert.ok(true);
         });
         this.example("Test 3", function(test) {
             lib.fail_async(test.done);
@@ -184,7 +185,7 @@ Scenario: Everything, including colour
     """
     var nodespec = require('nodespec');
     nodespec.describe("Progress Formatter Output", function() {
-        this.example("Passing Test", function() {  });
+        this.example("Passing Test", function() { this.assert.ok(true); });
         this.example("Failing Test", function() {
             this.assert.equal(true, false);
         });

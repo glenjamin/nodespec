@@ -9,10 +9,10 @@ Scenario: require('nodespec') equivalent to require('nodespec')('default')
     var nodespec1 = require('nodespec');
     var nodespec2 = require('nodespec')('default');
     nodespec1.describe("Normal", function() {
-        this.example("with one test", function() {});
+        this.example("with one test", function() { this.assert.ok(true); });
     });
     nodespec2.describe("explicitly default", function() {
-        this.example("with one test", function() {});
+        this.example("with one test", function() { this.assert.ok(true); });
     });
     nodespec1.exec();
     """
@@ -26,10 +26,10 @@ Scenario: Calling nodespec as a function returns a new named copy
     var nodespec1 = require('nodespec')('something');
     var nodespec2 = require('nodespec')('else');
     nodespec1.describe("Something", function() {
-        this.example("with one test", function() {});
+        this.example("with one test", function() { this.assert.ok(true); });
     });
     nodespec2.describe("Else", function() {
-        this.example("with one test", function() {});
+        this.example("with one test", function() { this.assert.ok(true); });
     });
     nodespec1.exec();
     """
