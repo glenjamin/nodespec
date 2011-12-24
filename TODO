@@ -2,8 +2,13 @@ Unit test existing code
   - Example before
   - Example after
   - ExampleGroup
-Configurable hook timeouts
 * v0.3
+Refactor hooks to share code paths
+  - global before
+  - global after
+  - before
+  - after
+  - share some more stuff with the spec?
 Proper commandline runner
 Formatter refactor
   - base class

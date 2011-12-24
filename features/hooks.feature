@@ -149,6 +149,24 @@ Scenario: done() not called in async hook times out
     Then the exit status should be 2
     And the output should contain "1 errored"
 
+Scenario: done() called too late (short timeout)
+    Given a file named "basic-spec.js" with:
+    """
+    var nodespec = require('nodespec');
+    nodespec.describe("Hook behaviour", function() {
+        this.before(function(hook) {
+            setTimeout(hook.done, 100);
+        }).timeout_after(0.01);
+        this.example("This example will not run", function() {
+            this.assert.strictEqual(1, 1);
+        });
+    });
+    nodespec.exec();
+    """
+    When I run `node basic-spec.js`
+    Then the exit status should be 2
+    And the output should contain "1 errored"
+
 Scenario: after hooks are called, regardless of test result
     Given a file named "basic-spec.js" with:
     """

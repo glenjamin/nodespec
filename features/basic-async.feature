@@ -10,8 +10,7 @@ Background:
     function calculate(expression, callback) {
         process.nextTick(function() {
             try {
-                var result = eval(expression)
-                callback(null, result);
+                callback(null, eval(expression));
             } catch (ex) {
                 callback(ex);
             }
