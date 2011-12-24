@@ -58,8 +58,8 @@ nodespec.describe("Example", function() {
     return nodespec("target for testing");
   });
   this.after(function() { this.nodespec.abandon(); });
-  this.describe("initialisation", function() {
-    this.example("should have description", function() {
+  this.describe("initialisation", function(it) {
+    this.should("have description", function() {
       this.assert.equal(this.example.description, "example description");
     });
     this.example("timeout defaults to Example.DEFAULT_TIMEOUT", function() {
@@ -91,7 +91,7 @@ nodespec.describe("Example", function() {
       this.assert.equal(this.example.file_path, __filename);
       this.assert.equal(this.example.line_number, 12);
     });
-    this.example("should have block", function() {
+    it("should have block", function() {
       this.assert.strictEqual(this.example.block, this.block);
     });
     this.context("called without block", function() {

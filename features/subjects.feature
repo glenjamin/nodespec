@@ -1,7 +1,7 @@
 Feature: Subjects
     As a: software developer
     I want to: Use a shorthand for assigning values in contexts
-    So that: I can cleanly set up to subjects of assertions
+    So that: I can cleanly set up the subjects of assertions
 
 Scenario: Un-named subject
     Given a file named "basic-spec.js" with:
