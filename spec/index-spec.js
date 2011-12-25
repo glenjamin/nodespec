@@ -1,6 +1,7 @@
 var nodespec = require('./common');
 
 var eg = require('../lib/example-group');
+var hk = require('../lib/hook');
 var r  = require('../lib/result');
 
 var Module = require('module').Module;
@@ -46,6 +47,11 @@ nodespec.describe("Nodespec", function() {
     this.after(function() {
       this.nodespec.abandon();
     });
+    this.describe("default values", function() {
+      this.should("have DEFAULT_HOOK_TIMEOUT = 2", function() {
+        this.assert.equal(this.nodespec.DEFAULT_HOOK_TIMEOUT, 2)
+      });
+    });
     this.describe("assert", function() {
       this.example("defaults to stdlib assert module", function() {
         this.assert.strictEqual(this.nodespec.assert,
@@ -63,7 +69,7 @@ nodespec.describe("Nodespec", function() {
       this.subject("definition", function() { return function(){} });
       this.subject("nodespec", function() {
         return nodespec("fresh nodespec to test",
-                { ExampleGroup: this.ExampleGroup });
+                        { ExampleGroup: this.ExampleGroup });
       });
       this.subject("ExampleGroup", function() {
         var eg_cls = this.sinon.stub(eg, "ExampleGroup");
@@ -131,18 +137,26 @@ nodespec.describe("Nodespec", function() {
       });
     });
     this.describe("global hooks", function() {
+      this.subject("nodespec", function() {
+        return nodespec("fresh nodespec to test", { Hook: this.Hook });
+      });
+      this.subject("Hook", function() {
+        return hk.Hook;
+      });
       this.subject("block", function(){
         return function(){};
       });
       this.example("before adds block to before_hooks", function() {
         this.nodespec.before(this.block);
         this.assert.equal(this.nodespec.before_hooks.length, 1);
-        this.assert.equal(this.nodespec.before_hooks[0], this.block);
+        this.assert.ok(this.nodespec.before_hooks[0] instanceof this.Hook);
+        this.assert.equal(this.nodespec.before_hooks[0].block, this.block);
       });
       this.example("after adds block to after_hooks", function() {
         this.nodespec.after(this.block);
         this.assert.equal(this.nodespec.after_hooks.length, 1);
-        this.assert.equal(this.nodespec.after_hooks[0], this.block);
+        this.assert.ok(this.nodespec.after_hooks[0] instanceof this.Hook);
+        this.assert.equal(this.nodespec.after_hooks[0].block, this.block);
       });
     })
     this.describe("mockWith", function() {

@@ -3,12 +3,7 @@ Unit test existing code
   - Example after
   - ExampleGroup
 * v0.3
-Refactor hooks to share code paths
-  - global before
-  - global after
-  - before
-  - after
-  - share some more stuff with the spec?
+Object to store configuration state
 Proper commandline runner
 Formatter refactor
   - base class
@@ -20,7 +15,8 @@ Full documentation
   - getting started
   - manual
   - API
-Another possible alternate syntax for test definition
+  - website
+Another possible alternate syntax for test definition?
   - this("example")
 * v0.4
 Code coverage via https://github.com/substack/node-bunker

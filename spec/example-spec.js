@@ -602,12 +602,15 @@ nodespec.describe("Example", function() {
     });
   });
   this.describe("before", function() {
+    function fake_hook(func) {
+      return { timeout: 0.01, block: func };
+    }
     this.context("one sync hook", function() {
       var mock = new Object;
       this.subject("before_hooks", function() {
-        return [this.sinon.spy(function() {
-          this.variable_before = mock;
-        })];
+        return [
+          fake_hook(this.sinon.spy(function() { this.variable_before = mock; }))
+        ];
       });
       var describe_block = block_example.bind(this);
       describe_block("accessing variables that were setup",
@@ -617,7 +620,7 @@ nodespec.describe("Example", function() {
         function example_exec(test, result) {
           test.expect(2);
           test.assert.ifError(result.error);
-          test.sinon.assert.calledOnce(test.before_hooks[0]);
+          test.sinon.assert.calledOnce(test.before_hooks[0].block);
           test.done();
         }
       );
