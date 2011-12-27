@@ -430,6 +430,23 @@ nodespec.describe("Example", function() {
         error: "exception"
       });
     });
+    this.context("async block that calls done twice", function() {
+      this.subject("block", function() {
+        return function(t) {
+          t.done();
+          process.nextTick(t.done);
+        };
+      });
+      this.example("should throw exception second time", function(test) {
+        test.expect(2);
+        test.onError(function(ex) {
+          test.assert.ok(/called twice/.test(ex.message))
+        })
+        test.example.exec(test.emitter, function(err, result) {
+          test.assert.equal(result.type, "pass");
+        })
+      })
+    });
     this.context("async block that doesn't call done", function() {
       this.subject("block", function() {
         var test = this;

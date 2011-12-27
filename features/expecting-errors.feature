@@ -31,6 +31,7 @@ Scenario: Asynchronous unit under test errors
             test.expect(1);
             test.onError(function(ex) {
                 this.assert.equal(ex.message, 'fail');
+                // note no test.done()
             });
             process.nextTick(function() {
                 throw new Error('fail');
