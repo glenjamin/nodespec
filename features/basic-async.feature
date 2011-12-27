@@ -168,6 +168,7 @@ Scenario: Done is called before we stop waiting
     nodespec.describe("Addition", function() {
         this.example("2 + 2 = 5", function(test) {
             calc.calculate("2 + 2", function(err, result) {
+                test.assert.ok(true);
                 setTimeout(test.done, 1500); // 1.5 seconds
             });
         });
