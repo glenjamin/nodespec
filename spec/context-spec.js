@@ -116,5 +116,22 @@ nodespec.describe("Context", function() {
       this.assert.equal(this.context.assertions, 3);
     });
   });
+  this.describe("onError", function() {
+    this.example("getter false with no function", function() {
+      this.assert.equal(this.context.onError(), false);
+    });
+    this.example("getter returns func previously passed", function() {
+      var func = function(){};
+      this.assert.equal(this.context.onError(func), func);
+      this.assert.equal(this.context.onError(), func);
+    })
+    this.example("passing false unsets value", function() {
+      var func = function(){};
+      this.assert.equal(this.context.onError(func), func);
+      this.assert.equal(this.context.onError(), func);
+      this.assert.equal(this.context.onError(false), false);
+      this.assert.equal(this.context.onError(), false);
+    })
+  });
 });
 nodespec.exec();

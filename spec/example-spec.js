@@ -35,6 +35,7 @@ nodespec.describe("Example", function() {
     context._setup_done = this.sinon.spy(function(done) {
       if (done) { context.done = done; }
     });
+    context.onError = function() { return false };
     context.assert = require('assert');
     return context;
   });
