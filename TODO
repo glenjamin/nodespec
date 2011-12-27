@@ -1,6 +1,6 @@
 Unit test existing code
-  - Example before
-  - Example after
+  - Example before async
+  - Example after async
   - ExampleGroup
 * v0.3
 Object to store configuration state

@@ -620,28 +620,228 @@ nodespec.describe("Example", function() {
     });
   });
   this.describe("before", function() {
-    function fake_hook(func) {
-      return { timeout: 0.01, block: func };
-    }
-    this.context("one sync hook", function() {
-      var mock = new Object;
-      this.subject("before_hooks", function() {
-        return [
-          fake_hook(this.sinon.spy(function() { this.variable_before = mock; }))
-        ];
-      });
-      var describe_block = block_example.bind(this);
-      describe_block("accessing variables that were setup",
-        function block() {
-          this.assert.strictEqual(this.variable_before, mock);
-        },
-        function example_exec(test, result) {
-          test.expect(2);
+    var placeholder = new Object;
+    this.context("successful sync hook", function() {
+      sync_before_behaviour.call(this,
+        function hook() { this.x = placeholder; },
+        function block() { this.assert.strictEqual(this.x, placeholder); },
+        "should call hook and spec with no error",
+        function(test, result) {
+          test.expect(4);
           test.assert.ifError(result.error);
-          test.sinon.assert.calledOnce(test.before_hooks[0].block);
+          test.assert.equal(result.type, 'pass');
+          test.sinon.assert.calledOnce(test.hook);
+          test.sinon.assert.calledOnce(test.block);
           test.done();
         }
-      );
+      )
+    });
+    this.context("failing sync hook", function() {
+      sync_before_behaviour.call(this,
+        function hook() { this.assert.ok(false); },
+        function block() { this.assert.ok(true); },
+        "should call hook but not block, and fail",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.sinon.assert.calledOnce(test.hook);
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    });
+    this.context("erroring sync hook", function() {
+      sync_before_behaviour.call(this,
+        function hook() { a = c + b },
+        function block() { this.assert.ok(true); },
+        "should call hook but not block, and error",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.sinon.assert.calledOnce(test.hook);
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    });
+    this.context("mutliple successful sync hooks", function() {
+      sync_before_behaviour.call(this,
+        [function hook1() { this.a = 1 }, function hook2() { this.a = 2 }],
+        function block() {
+          this.assert.equal(this.a, 2);
+        },
+        "should call hooks and then the block and pass",
+        function(test, result) {
+          test.expect(5);
+          test.assert.ifError(result.error);
+          test.assert.equal(result.type, 'pass');
+          test.sinon.assert.calledOnce(test.hook1);
+          test.sinon.assert.calledOnce(test.hook2);
+          test.sinon.assert.calledOnce(test.block);
+          test.done();
+        }
+      )
+    });
+    this.context("first of 2 sync hooks fails", function() {
+      sync_before_behaviour.call(this,
+        [
+          function hook1() { this.assert.ok(false) },
+          function hook2() { this.b = 2 }
+        ],
+        function block() { this.assert.ok(true); },
+        "should call the first hook only, and fail",
+        function(test, result) {
+          test.expect(5);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.sinon.assert.calledOnce(test.hook1);
+          test.sinon.assert.notCalled(test.hook2);
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    });
+  });
+  this.describe("after", function() {
+    var placeholder = new Object;
+    this.context("successful sync hook", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.x = placeholder; },
+        function hook() { this.assert.equal(this.x, placeholder) },
+        "should call spec and hook with no error",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ifError(result.error);
+          test.assert.equal(result.type, 'pass');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook);
+          test.done();
+        }
+      )
+    });
+    this.context("failing sync hook", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.x = placeholder; },
+        function hook() { this.assert.equal(this.x, 7) },
+        "should call spec and hook and fail",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook);
+          test.done();
+        }
+      )
+    });
+    this.context("erroring sync hook", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.x = placeholder; },
+        function hook() { a = b + c },
+        "should call spec and hook and error",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook);
+          test.done();
+        }
+      )
+    });
+    this.context("failing spec with a sync hook", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.assert.ok(false) },
+        function hook() { this.assert.ok(true) },
+        "should call spec and fail but still call hook",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook);
+          test.done();
+        }
+      )
+    });
+    this.context("failing spec with a failing sync hook", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.assert.ok(false, 'spec') },
+        function hook() { this.assert.ok(false, 'hook') },
+        "should call spec and hook, but provide spec's error",
+        function(test, result) {
+          test.expect(5);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.assert.equal(result.error.message, 'spec');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook);
+          test.done();
+        }
+      )
+    });
+    this.context("mutliple successful sync hooks", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.a = 1; },
+        [
+          function hook1() { this.assert.equal(this.a, 1); this.a = 2 },
+          function hook2() { this.assert.equal(this.a, 2); }
+        ],
+        "should call block, then hooks, and pass",
+        function(test, result) {
+          test.expect(5);
+          test.assert.ifError(result.error);
+          test.assert.equal(result.type, 'pass');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook1);
+          test.sinon.assert.calledOnce(test.hook2);
+          test.done();
+        }
+      )
+    });
+    this.context("mutliple failing sync hooks", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.a = 1; },
+        [
+          function hook1() { this.assert.equal(this.a, 2, 'one'); },
+          function hook2() { this.assert.equal(this.a, 2, 'two'); }
+        ],
+        "should call block, then hooks, and return first error",
+        function(test, result) {
+          test.expect(6);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.assert.equal(result.error.message, 'one');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook1);
+          test.sinon.assert.calledOnce(test.hook2);
+          test.done();
+        }
+      )
+    });
+    this.context("mutliple erroring sync hooks", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.a = 1; },
+        [
+          function hook1() { throw new Error('one') },
+          function hook2() { throw new Error('two') }
+        ],
+        "should call block, then hooks, and return all errors",
+        function(test, result) {
+          test.expect(8);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.assert.ok(/multiple/i.test(result.error.message));
+          test.assert.equal(result.error.errors[0].message, 'one');
+          test.assert.equal(result.error.errors[1].message, 'two');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook1);
+          test.sinon.assert.calledOnce(test.hook2);
+          test.done();
+        }
+      )
     });
   });
 });
@@ -719,4 +919,37 @@ function exec_behaviour(group, options) {
       test.done();
     })
   });
+}
+
+function sync_before_behaviour(hook, block, desc, body) {
+  sync_hook_behaviour.call(this, "before", hook, block, desc, body);
+}
+function sync_after_behaviour(block, hook, desc, body) {
+  sync_hook_behaviour.call(this, "after", hook, block, desc, body);
+}
+
+function sync_hook_behaviour(type, hook, block, desc, body) {
+  if (hook.forEach) {
+    var hooks = [];
+    hook.forEach(function(h, i) {
+      hooks.push(i+1);
+      this.subject("hook" + (i+1), function() { return this.sinon.spy(h) })
+    }.bind(this))
+    this.subject(type + "_hooks", function() {
+      return hooks.map(function(i) {
+        return { block: this["hook" + i], timeout: 0.01 }
+      }.bind(this))
+    })
+  } else {
+    this.subject("hook", function() { return this.sinon.spy(hook) })
+    this.subject(type + "_hooks", function() {
+      return [{ block: this.hook, timeout: 0.01 }];
+    })
+  }
+  this.subject("block", function() { return this.sinon.spy(block) })
+  this.example(desc, function(test) {
+    test.example.exec(test.emitter, function(err, result) {
+      body(test, result);
+    })
+  })
 }
