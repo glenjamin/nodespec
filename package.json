@@ -3,7 +3,7 @@
   "description": "A light-weight RSpec-esque testing framework",
   "homepage": "https://github.com/glenjamin/nodespec",
   "author": "Glen Mailer <glenjamin@gmail.com>",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "engines": {
     "node": "0.4.x || 0.6.x"
   },
