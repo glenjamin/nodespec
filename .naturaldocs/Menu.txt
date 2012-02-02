@@ -51,6 +51,7 @@ Group: Classes  {
 
    File: ExampleGroup  (example-group.js)
    File: Example  (example.js)
+   File: Hook  (hook.js)
    }  # Group: Classes
 
 Class Index: Full Class List

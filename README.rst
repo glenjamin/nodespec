@@ -2,6 +2,8 @@
 nodespec
 ========
 
+http://glenjamin.github.com/nodespec
+
 A light-weight RSpec_-esque testing framework designed and built
 specifically for NodeJS.
 
