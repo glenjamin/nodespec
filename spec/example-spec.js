@@ -231,7 +231,7 @@ nodespec.describe("Example", function() {
         test.block_spy = test.sinon.spy();
         return function(t) {
           test.block_spy.apply(this, arguments);
-          t.done();
+          process.nextTick(t.done);
         };
       });
       async_exec_behaviour(this, {
@@ -266,7 +266,7 @@ nodespec.describe("Example", function() {
         test.block_spy = test.sinon.spy();
         return function(t) {
           test.block_spy.apply(this, arguments);
-          t.done(test.exception);
+          process.nextTick(function () {t.done(test.exception)});
         };
       });
       this.subject("exception", function() {
@@ -636,6 +636,31 @@ nodespec.describe("Example", function() {
         }
       )
     });
+    this.context("successful async hook", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var spy = this.hook_spy = this.sinon.spy();
+          var hook = function(t) {
+            spy.apply(this, arguments);
+            t.x = placeholder;
+            t.done()
+          }
+          return [hook]
+        },
+        function block() { this.assert.strictEqual(this.x, placeholder) },
+        "should call hook with context as argument",
+        function(test, result) {
+          test.expect(6);
+          test.assert.ifError(result.error);
+          test.assert.equal(result.type, 'pass');
+          test.sinon.assert.calledOnce(test.hook_spy);
+          test.sinon.assert.calledWith(test.hook_spy, test.context);
+          test.sinon.assert.calledOn(test.hook_spy, global)
+          test.sinon.assert.calledOnce(test.block);
+          test.done();
+        }
+      )
+    })
     this.context("failing sync hook", function() {
       sync_before_behaviour.call(this,
         function hook() { this.assert.ok(false); },
@@ -650,7 +675,31 @@ nodespec.describe("Example", function() {
           test.done();
         }
       )
-    });
+    })
+    this.context("failing async hook", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var spy = this.hook_spy = this.sinon.spy();
+          var hook = function(t) {
+            spy.apply(this, arguments);
+            process.nextTick(function() { t.assert.ok(false) })
+          }
+          return [hook]
+        },
+        function block() { this.assert.ok(true) },
+        "should call hook but not block, and fail",
+        function(test, result) {
+          test.expect(6);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.sinon.assert.calledOnce(test.hook_spy);
+          test.sinon.assert.calledWith(test.hook_spy, test.context);
+          test.sinon.assert.calledOn(test.hook_spy, global)
+          test.sinon.assert.notCalled(test.block)
+          test.done();
+        }
+      )
+    })
     this.context("erroring sync hook", function() {
       sync_before_behaviour.call(this,
         function hook() { a = c + b },
@@ -666,6 +715,30 @@ nodespec.describe("Example", function() {
         }
       )
     });
+    this.context("erroring async hook", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var spy = this.hook_spy = this.sinon.spy();
+          var hook = function(t) {
+            spy.apply(this, arguments);
+            process.nextTick(function() { a = c + b })
+          }
+          return [hook]
+        },
+        function block() { this.assert.ok(true) },
+        "should call hook but not block, and error",
+        function(test, result) {
+          test.expect(6);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.sinon.assert.calledOnce(test.hook_spy);
+          test.sinon.assert.calledWith(test.hook_spy, test.context);
+          test.sinon.assert.calledOn(test.hook_spy, global)
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    })
     this.context("mutliple successful sync hooks", function() {
       sync_before_behaviour.call(this,
         [function hook1() { this.a = 1 }, function hook2() { this.a = 2 }],
@@ -684,6 +757,34 @@ nodespec.describe("Example", function() {
         }
       )
     });
+    this.context("mutliple successful async hooks", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var spy1 = this.hook1_spy = this.sinon.spy();
+          var hook1 = function(t) {
+            spy1.apply(this, arguments);
+            process.nextTick(function() { t.a = 1; t.done() })
+          }
+          var spy2 = this.hook2_spy = this.sinon.spy();
+          var hook2 = function(t) {
+            spy2.apply(this, arguments);
+            process.nextTick(function() { t.a = 2; t.done() })
+          }
+          return [hook1, hook2]
+        },
+        function block() { this.assert.strictEqual(this.a, 2) },
+        "should call hooks and then the block and pass",
+        function(test, result) {
+          test.expect(5);
+          test.assert.ifError(result.error);
+          test.assert.equal(result.type, 'pass');
+          test.sinon.assert.calledOnce(test.hook1_spy);
+          test.sinon.assert.calledOnce(test.hook2_spy);
+          test.sinon.assert.calledOnce(test.block);
+          test.done();
+        }
+      )
+    })
     this.context("first of 2 sync hooks fails", function() {
       sync_before_behaviour.call(this,
         [
@@ -843,9 +944,33 @@ nodespec.describe("Example", function() {
         }
       )
     });
+    this.context("erroring hook followed by failing hook", function() {
+      sync_after_behaviour.call(this,
+        function block() { this.a = 1; },
+        [
+          function hook1() { throw new Error('one') },
+          function hook2() { this.assert.equal(this.a, 2, 'two') }
+        ],
+        "should call block, then hooks, and return all errors",
+        function(test, result) {
+          test.expect(8);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.assert.ok(/multiple/i.test(result.error.message));
+          test.assert.equal(result.error.errors[0].message, 'one');
+          test.assert.equal(result.error.errors[1].message, 'two');
+          test.sinon.assert.calledOnce(test.block);
+          test.sinon.assert.calledOnce(test.hook1);
+          test.sinon.assert.calledOnce(test.hook2);
+          test.done();
+        }
+      )
+    });
   });
 });
 nodespec.exec();
+
+/*** Test factories ***/
 
 function block_example(body_desc, block, body) {
   this.context("", function() {
@@ -921,35 +1046,47 @@ function exec_behaviour(group, options) {
   });
 }
 
-function sync_before_behaviour(hook, block, desc, body) {
-  sync_hook_behaviour.call(this, "before", hook, block, desc, body);
+function async_before_behaviour(hooks, block, desc, example) {
+  async_hook_behaviour.call(this, "before", hooks, block, desc, example);
 }
-function sync_after_behaviour(block, hook, desc, body) {
-  sync_hook_behaviour.call(this, "after", hook, block, desc, body);
+function async_after_behaviour(hooks, block, desc, example) {
+  async_hook_behaviour.call(this, "after", hooks, block, desc, example);
+}
+function sync_before_behaviour(hook, block, desc, example) {
+  sync_hook_behaviour.call(this, "before", hook, block, desc, example);
+}
+function sync_after_behaviour(block, hook, desc, example) {
+  sync_hook_behaviour.call(this, "after", hook, block, desc, example);
 }
 
-function sync_hook_behaviour(type, hook, block, desc, body) {
-  if (hook.forEach) {
-    var hooks = [];
-    hook.forEach(function(h, i) {
-      hooks.push(i+1);
-      this.subject("hook" + (i+1), function() { return this.sinon.spy(h) })
-    }.bind(this))
-    this.subject(type + "_hooks", function() {
-      return hooks.map(function(i) {
-        return { block: this["hook" + i], timeout: 0.01 }
+function sync_hook_behaviour(type, hook, block, desc, example) {
+  var define_hooks = function() {
+    if (hook.map) {
+      return hook.map(function(h, i) {
+        return this["hook" + (i+1)] = this.sinon.spy(h);
       }.bind(this))
-    })
-  } else {
-    this.subject("hook", function() { return this.sinon.spy(hook) })
-    this.subject(type + "_hooks", function() {
-      return [{ block: this.hook, timeout: 0.01 }];
-    })
+    } else {
+      this.hook = this.sinon.spy(hook);
+      return [this.hook]
+    }
   }
+  hook_behaviour.call(this, type, define_hooks, block, desc, example);
+}
+
+function async_hook_behaviour(type, hooks, block, desc, example) {
+  hook_behaviour.call(this, type, hooks, block, desc, example);
+}
+
+function hook_behaviour(type, hooks, block, desc, example) {
+  this.subject(type + "_hooks", function() {
+    return hooks.call(this).map(function(h) {
+      return { block: h, timeout: 0.01 }
+    })
+  })
   this.subject("block", function() { return this.sinon.spy(block) })
   this.example(desc, function(test) {
     test.example.exec(test.emitter, function(err, result) {
-      body(test, result);
+      example(test, result);
     })
   })
 }
