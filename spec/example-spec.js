@@ -803,7 +803,107 @@ nodespec.describe("Example", function() {
           test.done();
         }
       )
-    });
+    })
+    this.context("first of 2 async hooks fails", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var spy1 = this.hook1_spy = this.sinon.spy();
+          var hook1 = function(t) {
+            spy1.apply(this, arguments);
+            process.nextTick(function() { t.assert.ok(false) })
+          }
+          var spy2 = this.hook2_spy = this.sinon.spy();
+          var hook2 = function(t) {
+            spy2.apply(this, arguments);
+            process.nextTick(function() { t.a = 2; t.done() })
+          }
+          return [hook1, hook2]
+        },
+        function block() { this.assert.strictEqual(this.a, 2) },
+        "should call the first hook only, and fail",
+        function(test, result) {
+          test.expect(5);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'fail');
+          test.sinon.assert.calledOnce(test.hook1_spy);
+          test.sinon.assert.notCalled(test.hook2_spy);
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    })
+    this.context("async hook not calling done", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var spy = this.hook_spy = this.sinon.spy();
+          var hook = function(t) { spy.apply(this, arguments); }
+          return [hook]
+        },
+        function block() { this.assert.ok(true) },
+        "should call hook, not block and error",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.sinon.assert.calledOnce(test.hook_spy);
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    })
+    this.context("async hook with longer timeout not calling done", function() {
+      async_before_behaviour.call(this,
+        function setup_hooks() {
+          var test = this;
+          test.sinon.useFakeTimers();
+          var spy = this.hook_spy = this.sinon.spy();
+          var hook = function(t) {
+            spy.apply(this, arguments);
+            process.nextTick(function() { test.sinon.clock.tick(4500) })
+          }
+          hook.timeout = 4;
+          return [hook]
+        },
+        function block() { this.assert.ok(true) },
+        "should call hook, not block and error",
+        function(test, result) {
+          test.expect(4);
+          test.assert.ok(result.error);
+          test.assert.equal(result.type, 'error');
+          test.sinon.assert.calledOnce(test.hook_spy);
+          test.sinon.assert.notCalled(test.block);
+          test.done();
+        }
+      )
+    })
+    this.context("async hook calling done twice", function(it) {
+      this.subject("before_hooks", function() {
+        return [{block: this.hook, timeout: 0.01}]
+      })
+      this.subject("hook", function() {
+        var spy = this.hook_spy = this.sinon.spy();
+        return function(t) {
+          spy.apply(this, arguments)
+          t.done();
+          t.done();
+        }
+      })
+      this.subject("block", function() {
+        return this.sinon.spy(function block() { this.assert.ok(true); })
+      })
+      it("should throw error second time", function(test) {
+        test.expect(4)
+        test.onError(function(err) {
+          test.assert.ok(/called twice/.test(err.message))
+        })
+        test.example.exec(test.emitter, function(err, result) {
+            test.assert.ifError(result.error);
+            test.assert.equal(result.type, 'pass');
+            test.sinon.assert.calledOnce(test.hook_spy);
+            test.sinon.assert.calledOnce(test.block);
+        })
+      })
+    })
   });
   this.describe("after", function() {
     var placeholder = new Object;
@@ -1080,7 +1180,7 @@ function async_hook_behaviour(type, hooks, block, desc, example) {
 function hook_behaviour(type, hooks, block, desc, example) {
   this.subject(type + "_hooks", function() {
     return hooks.call(this).map(function(h) {
-      return { block: h, timeout: 0.01 }
+      return { block: h, timeout: h.timeout || 0.01 }
     })
   })
   this.subject("block", function() { return this.sinon.spy(block) })

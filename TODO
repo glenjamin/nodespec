@@ -14,6 +14,7 @@ Formatter refactor
   - unit tests
   - config options
   - specify which formatters to run
+  - xunit
 Allow forcing colour on/off & detect support via isatty
 Full documentation
   - getting started
@@ -25,7 +26,6 @@ Code coverage via https://github.com/substack/node-bunker
 More formatters
   - documentation (specdoc)
   - TAP
-  - xunit
   - html
   - multipage html?
   - pdf?
