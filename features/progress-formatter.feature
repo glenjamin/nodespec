@@ -197,7 +197,7 @@ Scenario: Everything, including colour
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f progress`
+    When I run `node basic-spec.js -f progress --colour`
     Then the exit status should be 2
     And the output should contain:
     """
