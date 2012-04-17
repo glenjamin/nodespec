@@ -2,6 +2,7 @@ Unit test existing code
   - Example before async
   - Example after async
   - ExampleGroup
+More cukes!
 * v0.3
 Object to store configuration state
   - verbose
@@ -9,22 +10,23 @@ Object to store configuration state
   - halt on fail
 Proper commandline runner
   - file globbing
+  - tidy up hacked in args
+  - spec.opts?
 Formatter refactor
   - base class
   - unit tests
   - config options
   - specify which formatters to run
   - xunit
-Allow forcing colour on/off & detect support via isatty
+  - documentation (specdoc)
+  - tidier code coverage
 Full documentation
   - getting started
   - manual
   - API
   - website
 * v0.4
-Code coverage via https://github.com/substack/node-bunker
 More formatters
-  - documentation (specdoc)
   - TAP
   - html
   - multipage html?

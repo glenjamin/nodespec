@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "async": "0.1.x",
-    "tracey": "0.2.x"
+    "tracey": "0.2.x",
+    "bunker": "0.1.x",
+    "mkdirp": "0.3.x"
   },
   "devDependencies": {
     "sinon": "1.2.x"
