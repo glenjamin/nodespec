@@ -90,7 +90,7 @@ nodespec.describe("Example", function() {
       // This would normally be the group.example call
       // that defines the test
       this.assert.equal(this.example.file_path, __filename);
-      this.assert.equal(this.example.line_number, 12);
+      this.assert.equal(typeof this.example.line_number, 'number');
     });
     it("should have block", function() {
       this.assert.strictEqual(this.example.block, this.block);

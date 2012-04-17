@@ -1,4 +1,4 @@
-var nodespec = require('../lib/index')('selftest');
+var nodespec = require('../lib/index');
 
 nodespec.mockWith('sinon');
 

@@ -20,7 +20,7 @@ nodespec.describe("Exceptions", function() {
     this.example("should have a stack trace", function() {
       this.assert.ok(this.subject.stack);
       this.assert.ok(
-        this.subject.stack.indexOf('exceptions-spec.js:8') !== -1
+        this.subject.stack.indexOf('exceptions-spec.js:') !== -1
       );
     })
   });
@@ -50,7 +50,7 @@ nodespec.describe("Exceptions", function() {
     this.example("should have a stack trace", function() {
       this.assert.ok(this.subject.stack);
       this.assert.ok(
-        this.subject.stack.indexOf('exceptions-spec.js:29') !== -1
+        this.subject.stack.indexOf('exceptions-spec.js:') !== -1
       );
     })
   });
