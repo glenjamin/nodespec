@@ -3,7 +3,6 @@ Unit test existing code
   - Example after async
   - ExampleGroup
 More cukes!
-* v0.3
 Object to store configuration state
   - verbose
   - filter
@@ -12,6 +11,7 @@ Proper commandline runner
   - file globbing
   - tidy up hacked in args
   - spec.opts?
+* v0.4
 Formatter refactor
   - base class
   - unit tests
@@ -25,13 +25,13 @@ Full documentation
   - manual
   - API
   - website
-* v0.4
+* v0.5
 More formatters
   - TAP
   - html
   - multipage html?
   - pdf?
-v0.5
+* v0.x
 
 KNOWN ISSUES
 ------------
