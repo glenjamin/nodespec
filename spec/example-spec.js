@@ -546,6 +546,18 @@ nodespec.describe("Example", function() {
           test.done();
         }
       );
+      describe_block("can be overridden in test",
+        function block() {
+          this.subject = 7
+          this.assert.strictEqual(this.subject, 7);
+        },
+        function example_exec(test, result) {
+          test.expect(2);
+          test.assert.ifError(result.error);
+          test.sinon.assert.notCalled(test.subject_spy);
+          test.done();
+        }
+      );
       describe_block("lazy eval in async mode",
         function block(test) {
           process.nextTick(function() {

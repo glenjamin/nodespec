@@ -26,3 +26,8 @@ task(:api) do
             -s Default documentation
   ")
 end
+
+desc "Run tests with code coverage"
+task(:cov) do
+  system("node spec/all-specs.js --cov 'nodespec/lib'")
+end
