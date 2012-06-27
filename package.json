@@ -5,13 +5,11 @@
   "author": "Glen Mailer <glenjamin@gmail.com>",
   "version": "0.3.0",
   "engines": {
-    "node": "0.4.x || 0.6.x"
+    "node": "0.4.x || 0.6.x || 0.8.x"
   },
   "dependencies": {
     "async": "0.1.x",
-    "tracey": "0.2.x",
-    "bunker": "0.1.x",
-    "mkdirp": "0.3.x"
+    "tracey": "0.2.x"
   },
   "devDependencies": {
     "sinon": "1.2.x"
@@ -42,5 +40,8 @@
     "Authors listed in order of first contribution",
     "Glen Mailer <glenjamin@gmail.com>"
   ],
-  "optionalDependencies": {}
+  "optionalDependencies": {
+    "bunker": "0.1.x",
+    "mkdirp": "0.3.x"
+  }
 }
