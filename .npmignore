@@ -11,3 +11,4 @@ documentation/
 documentation.css
 .gitignore
 doc
+coverage/
