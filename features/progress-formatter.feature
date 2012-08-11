@@ -156,7 +156,7 @@ Scenario: Some errored tests
          // ./basic-spec.js:11
          lib.fail_async(test.done);
          CustomError: failing function
-           at Object.fail_async (./lib.js:2:14)
+           at Object.exports.fail_async (./lib.js:2:14)
            at ./basic-spec.js:11:13
     """
     And the output should contain "3 specs (1 passed, 2 errored)"

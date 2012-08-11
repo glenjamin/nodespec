@@ -66,56 +66,34 @@ nodespec.describe("Nodespec", function() {
       });
     });
     this.describe("describe", function() {
-      this.subject("definition", function() { return function(){} });
+      this.subject("definition", function() { return this.sinon.spy() });
       this.subject("nodespec", function() {
-        return nodespec("fresh nodespec to test",
-                        { ExampleGroup: this.ExampleGroup });
+        return nodespec("fresh nodespec to test");
       });
-      this.subject("ExampleGroup", function() {
-        var eg_cls = this.sinon.stub(eg, "ExampleGroup");
-        eg_cls.prototype = eg.ExampleGroup.prototype;
-        return eg_cls;
-      });
-      this.example("factory for ExampleGroup", function() {
-        var group = this.nodespec.describe("a set of tests",
-                           this.definition);
+      this.example("proxy to root ExampleGroup", function() {
+        var group = this.nodespec.describe("a set of tests", this.definition);
 
-        this.sinon.assert.calledOnce(this.ExampleGroup);
-        var call = this.ExampleGroup.getCall(0);
+        this.assert.ok(group instanceof eg.ExampleGroup);
+        this.assert.equal(group.full_description, "a set of tests");
+        this.assert.strictEqual(group.nodespec, this.nodespec);
 
-        // Called as constructor
-        this.assert.ok(call.thisValue instanceof eg.ExampleGroup);
-        // Arg 1 = description
-        this.assert.equal(call.args[0], "a set of tests");
-        // Arg 2 = options object
-        this.assert.equal(typeof call.args[1], 'object');
-        // options.parent is nodespec
-        this.assert.strictEqual(call.args[1].parent, this.nodespec);
-        // options.nodespec is nodespec
-        this.assert.strictEqual(call.args[1].nodespec, this.nodespec);
-        // Arg 3 = definition function
-        this.assert.equal(call.args[2], this.definition);
+        this.sinon.assert.calledOnce(this.definition);
       });
       this.example("can pass explicit options", function() {
-        var options = {};
-        var group = this.nodespec.describe("a set of tests",
-                           options, this.definition);
+        var group = this.nodespec.describe(
+          "a set of tests", {special_setting: 1}, this.definition);
 
-        this.sinon.assert.calledOnce(this.ExampleGroup);
-        var call = this.ExampleGroup.getCall(0);
-
-        // Arg 2 = options object
-        this.assert.strictEqual(call.args[1], options);
-        // options.parent is still set to nodespec
-        this.assert.strictEqual(call.args[1].parent, this.nodespec);
-        // options.nodespec is still set to nodespec
-        this.assert.strictEqual(call.args[1].nodespec, this.nodespec);
+        this.assert.ok(group instanceof eg.ExampleGroup);
+        this.assert.equal(group.full_description, "a set of tests");
+        this.assert.strictEqual(group.nodespec, this.nodespec);
+        this.assert.equal(group.options.special_setting, 1);
+        this.sinon.assert.calledOnce(this.definition);
       });
       this.example("appends new instance to collection", function() {
-        var group = this.nodespec.describe("a set of tests",
-                           this.definition);
-        this.assert.strictEqual(this.nodespec.example_groups.length, 1);
-        this.assert.strictEqual(this.nodespec.example_groups[0], group);
+        var group = this.nodespec.describe("a set of tests", this.definition);
+
+        this.assert.strictEqual(this.nodespec.root.children.length, 1);
+        this.assert.strictEqual(this.nodespec.root.children[0], group);
       })
     });
     this.describe("require", function() {
@@ -138,25 +116,22 @@ nodespec.describe("Nodespec", function() {
     });
     this.describe("global hooks", function() {
       this.subject("nodespec", function() {
-        return nodespec("fresh nodespec to test", { Hook: this.Hook });
+        var ns = nodespec("fresh nodespec to test");
+        this.sinon.spy(ns.root, 'before');
+        this.sinon.spy(ns.root, 'after');
+        return ns;
       });
-      this.subject("Hook", function() {
-        return hk.Hook;
-      });
-      this.subject("block", function(){
-        return function(){};
-      });
-      this.example("before adds block to before_hooks", function() {
+      this.subject("block", function(){ return function(){}; });
+
+      this.example("before delegates to root group", function() {
         this.nodespec.before(this.block);
-        this.assert.equal(this.nodespec.before_hooks.length, 1);
-        this.assert.ok(this.nodespec.before_hooks[0] instanceof this.Hook);
-        this.assert.equal(this.nodespec.before_hooks[0].block, this.block);
+        this.sinon.assert.calledOnce(this.nodespec.root.before);
+        this.sinon.assert.calledWith(this.nodespec.root.before, this.block);
       });
-      this.example("after adds block to after_hooks", function() {
+      this.example("after delegates to root group", function() {
         this.nodespec.after(this.block);
-        this.assert.equal(this.nodespec.after_hooks.length, 1);
-        this.assert.ok(this.nodespec.after_hooks[0] instanceof this.Hook);
-        this.assert.equal(this.nodespec.after_hooks[0].block, this.block);
+        this.sinon.assert.calledOnce(this.nodespec.root.after);
+        this.sinon.assert.calledWith(this.nodespec.root.after, this.block);
       });
     })
     this.describe("mockWith", function() {
@@ -201,126 +176,44 @@ nodespec.describe("Nodespec", function() {
              "this usually means a dependency is missing");
       });
     });
-    this.describe("exec", function() {
+    this.describe("exec", function(it) {
       this.subject("nodespec", function() {
-        var ns = nodespec("fresh nodespec to test",
-                  { Result: this.Result });
-        var s = this.sinon;
-        s.stub(ns, "example_groups", this.groups);
-        s.stub(ns, "formatters", [this.formatter]);
+        var ns = nodespec("fresh nodespec to test");
+        this.sinon.stub(ns, "root", this.root);
+        this.sinon.stub(ns, "formatters", [this.formatter]);
+        this.exit = this.sinon.stub(process, "exit");
         return ns;
       });
-      this.subject("groups", function() { return []; });
+      this.subject("root", function() {
+        return { exec: this.sinon.stub().yields(null, this.result) };
+      });
+      this.subject("result", function() { return new Object });
       this.subject("formatter", function() {
         var test = this;
         return { init: function(emitter) {
           test.emit = test.sinon.stub(emitter, "emit");
         }}
       });
-      this.subject("Result", function() {
-        var res_cls = this.sinon.stub(r, "Result");
-        res_cls.returns(this.result);
-        return res_cls;
+      this.example("should exec root group", function() {
+        this.nodespec.exec();
+        this.sinon.assert.calledOnce(this.root.exec);
       });
-      this.subject("result", function() { return new Object; });
-      this.context("no example groups", function() {
-        this.before(function() {
-          this.exit = this.sinon.stub(process, "exit");
-        });
-        this.example("should fire suite events", function() {
-          this.nodespec.exec();
+      it("should fire suite events", function() {
+        this.nodespec.exec();
 
-          this.sinon.assert.calledTwice(this.emit);
-          var c1 = this.emit.getCall(0);
-          this.assert.ok(c1.calledWith("suiteStart"));
-          var c2 = this.emit.getCall(1);
-          this.assert.ok(c2.calledWith("suiteComplete"));
-        });
-        this.example("should exit process with code", function() {
-          this.result.exit_code = 0;
-
-          this.nodespec.exec();
-
-          this.sinon.assert.calledOnce(this.exit);
-          this.sinon.assert.calledWith(this.exit, 0);
-        });
+        this.sinon.assert.calledTwice(this.emit);
+        var c1 = this.emit.getCall(0);
+        this.assert.ok(c1.calledWith("suiteStart"));
+        var c2 = this.emit.getCall(1);
+        this.assert.ok(c2.calledWith("suiteComplete", this.result));
       });
-      this.context("with example groups", function() {
-        this.before(function() {
-          this.g1 = new Object;
-          this.r1 = new Object;
-          this.g1.exec = this.sinon.stub();
-          this.g1.exec.yields(null, this.r1);
-          this.groups.push(this.g1);
+      it("should exit process with result code", function() {
+        this.result.exit_code = 17;
 
-          this.g2 = new Object;
-          this.r2 = new Object;
-          this.g2.exec = this.sinon.stub();
-          this.g2.exec.yields(null, this.r2);
-          this.groups.push(this.g2);
+        this.nodespec.exec();
 
-          this.result.add = this.sinon.stub();
-          this.result.exit_code = 0;
-        });
-        this.example("should exec each example group", function(test) {
-          test.expect(4);
-          test.sinon.stub(process, "exit", function(code) {
-            var s = test.sinon;
-
-            test.assert.equal(code, 0);
-            s.assert.calledOnce(test.g1.exec);
-            s.assert.calledOnce(test.g2.exec);
-            s.assert.callOrder(test.g1.exec, test.g2.exec);
-
-            test.done();
-          });
-          test.nodespec.exec();
-        });
-        this.example("should add up all the results", function(test) {
-          test.expect(4);
-          test.sinon.stub(process, "exit", function(code) {
-            var s = test.sinon;
-
-            test.assert.equal(code, 0);
-            s.assert.calledTwice(test.result.add);
-            var c1 = test.result.add.getCall(0);
-            var c2 = test.result.add.getCall(1);
-
-            test.assert.ok(c1.calledWith(test.r1));
-            test.assert.ok(c2.calledWith(test.r2));
-
-            test.done();
-          });
-          test.nodespec.exec();
-        });
-        this.example("should fire suite events", function(test) {
-          test.expect(7);
-          test.sinon.stub(process, "exit", function(code) {
-            var s = test.sinon;
-
-            test.assert.equal(code, 0);
-            s.assert.calledTwice(test.emit);
-            var c1 = test.emit.getCall(0);
-            var c2 = test.emit.getCall(1);
-
-            test.assert.ok(c1.calledWith("suiteStart"));
-            test.assert.ok(c2.calledWith("suiteComplete"));
-
-            // Bit fiddly,
-            // sinon.assert.callOrder only uses first call
-            // emit(start), g1.exec, g2.exec, emit(complete)
-            var o1 = test.emit.callIds[0];
-            var o2 = test.g1.exec.callIds[0];
-            var o3 = test.g2.exec.callIds[0];
-            var o4 = test.emit.callIds[1];
-            test.assert.ok(o1 < o2);
-            test.assert.ok(o2 < o3);
-            test.assert.ok(o3 < o4);
-
-            test.done();
-          });
-          test.nodespec.exec();
-        });
+        this.sinon.assert.calledOnce(this.exit);
+        this.sinon.assert.calledWith(this.exit, 17);
       });
     });
   });
