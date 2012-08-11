@@ -14,13 +14,13 @@ Scenario: Using the sandbox for spies
                 var spy = this.sinon.spy();
                 spy(1, 2, 3);
                 this.sinon.assert.calledOnce(spy);
-                this.sinon.assert.calledWith(spy, 1, 2, 3);
+                this.assert.calledWith(spy, 1, 2, 3);
             });
             this.example("fail", function() {
                 var spy = this.sinon.spy();
                 spy(1, 2, 3);
                 this.sinon.assert.calledOnce(spy);
-                this.sinon.assert.calledWith(spy, 1, 2, 4);
+                this.assert.calledWith(spy, 1, 2, 4);
             });
         });
     });
@@ -71,7 +71,7 @@ Scenario: Sinon assertions work with expect()
             var spy = this.sinon.spy();
             spy(1, 2, 3);
             this.sinon.assert.calledOnce(spy);
-            this.sinon.assert.calledWith(spy, 1, 2, 3);
+            this.assert.calledWith(spy, 1, 2, 3);
         });
     });
     nodespec.exec();
