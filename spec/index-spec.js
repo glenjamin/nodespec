@@ -190,7 +190,7 @@ nodespec.describe("Nodespec", function() {
       this.subject("result", function() { return new Object });
       this.subject("formatter", function() {
         var test = this;
-        return { init: function(emitter) {
+        return { init: function(conf, emitter) {
           test.emit = test.sinon.stub(emitter, "emit");
         }}
       });
