@@ -194,6 +194,9 @@ nodespec.describe("Nodespec", function() {
           test.emit = test.sinon.stub(emitter, "emit");
         }}
       });
+      this.before(function() {
+        this.sinon.stub(process, 'argv', []);
+      });
       this.example("should exec root group", function() {
         this.nodespec.exec();
         this.sinon.assert.calledOnce(this.root.exec);
