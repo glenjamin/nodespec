@@ -1,31 +1,23 @@
 Unit test existing code
-  - Example before async
   - Example after async
   - ExampleGroup
 More cukes!
-Object to store configuration state
-  - verbose
-  - filter
-  - halt on fail
 Proper commandline runner
   - file globbing
   - tidy up hacked in args
   - spec.opts?
-* v0.4
+* v0.5
 Formatter refactor
-  - base class
   - unit tests
-  - config options
-  - specify which formatters to run
+  - run multiple formatters
   - xunit
-  - documentation (specdoc)
   - tidier code coverage
 Full documentation
   - getting started
   - manual
   - API
   - website
-* v0.5
+* v1.0 ?
 More formatters
   - TAP
   - html
@@ -38,4 +30,9 @@ KNOWN ISSUES
 
 If a test takes longer to run than the timeout, but is not stalled, and there
 is an after block defined, the after block exec will remove the done function
-causing the test to error when done is eventually called.
+causing the test to error when done is eventually called. This also applies to
+an async before hook.
+
+Potential fixes:
+  * Make the test a callable instead of test.done
+  * Copy values into a new context for each step and leave done() alone
