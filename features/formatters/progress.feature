@@ -112,7 +112,7 @@ Scenario: Some pending tests
 Scenario: Some errored tests
     Given a file named "lib.js" with:
     """
-    exports.fail_async = function(callback) {
+    module.exports = function fail_async(callback) {
         callback(new CustomError("failing function"));
     }
     require('util').inherits(CustomError, Error);
@@ -125,7 +125,7 @@ Scenario: Some errored tests
     Given a file named "basic-spec.js" with:
     """
     var nodespec = require('nodespec');
-    var lib = require('./lib');
+    var fail_async = require('./lib');
     nodespec.describe("Dummy Tests", function() {
         this.example("Test 1", function() {
             a + b
@@ -134,7 +134,7 @@ Scenario: Some errored tests
             this.assert.ok(true);
         });
         this.example("Test 3", function(test) {
-            lib.fail_async(test.done);
+            fail_async(test.done);
         });
     });
     nodespec.exec();
@@ -154,10 +154,10 @@ Scenario: Some errored tests
 
       2) Dummy Tests Test 3
          // ./basic-spec.js:11
-         lib.fail_async(test.done);
+         fail_async(test.done);
          CustomError: failing function
-           at Object.exports.fail_async (./lib.js:2:14)
-           at ./basic-spec.js:11:13
+           at fail_async (./lib.js:2:14)
+           at ./basic-spec.js:11:9
     """
     And the output should contain "3 specs (1 passed, 2 errored)"
 
