@@ -31,3 +31,14 @@ desc "Run tests with code coverage"
 task(:cov) do
   system("node spec/all-specs.js --cov 'nodespec/lib'")
 end
+
+desc "Execute the CI Test Suite"
+task(:ci) do
+  results = []
+  system("cucumber -p ci")
+  results.push($?)
+  system("npm test")
+  results.push($?)
+
+  exit results.all? { |r| r == 0 }
+end

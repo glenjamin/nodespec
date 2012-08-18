@@ -1,2 +1,4 @@
 default: --require features --tags ~@slow
 all: --require features
+
+ci: --require features -f progress

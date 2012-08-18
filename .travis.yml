@@ -1,4 +1,10 @@
 language: node_js
+
 node_js:
   - "0.8"
   - "0.6"
+
+before_script: bundle install
+
+script: rake ci
+  

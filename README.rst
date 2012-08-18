@@ -4,6 +4,8 @@ nodespec
 
 http://glenjamin.github.com/nodespec
 
+.. image:: https://secure.travis-ci.org/glenjamin/nodespec.png
+
 A light-weight RSpec_-esque testing framework designed and built
 specifically for NodeJS.
 
