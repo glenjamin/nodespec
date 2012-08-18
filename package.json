@@ -5,7 +5,7 @@
   "author": "Glen Mailer <glenjamin@gmail.com>",
   "version": "0.4.1",
   "engines": {
-    "node": "0.4.x || 0.6.x || 0.8.x"
+    "node": "0.6.x || 0.8.x"
   },
   "dependencies": {
     "async": "0.1.x",
