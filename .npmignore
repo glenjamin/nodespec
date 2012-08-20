@@ -12,3 +12,4 @@ documentation.css
 .gitignore
 doc
 coverage/
+.travis.yml
