@@ -25,7 +25,7 @@ Scenario: Text-based coverage report
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js --cov 'basic.js'`
+    When I run nodespec with "basic-spec.js --cov 'basic.js'"
     Then the exit status should be 0
     And the output should contain "1 passed"
     And the file "./coverage/basic.js.diff" should contain exactly:

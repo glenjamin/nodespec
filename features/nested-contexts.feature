@@ -22,7 +22,7 @@ Scenario: Splitting tests into contexts
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "2 passed"
 
@@ -56,6 +56,6 @@ Scenario: Sharing before/after hooks with contexts
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "3 passed"

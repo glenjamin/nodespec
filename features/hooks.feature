@@ -22,7 +22,7 @@ Scenario: Setting up with before, not async
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "2 passed"
 
@@ -49,7 +49,7 @@ Scenario: Tearing down with after, not async
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "3 passed"
 
@@ -84,7 +84,7 @@ Scenario: Setting up and tearing down with async code
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "2 passed"
 
@@ -105,7 +105,7 @@ Scenario: Failure in before block
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 1
     And the output should contain "2 failed"
 
@@ -126,7 +126,7 @@ Scenario: Error in before block
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "2 errored"
 
@@ -145,7 +145,7 @@ Scenario: done() not called in async hook times out
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"
 
@@ -163,7 +163,7 @@ Scenario: done() called too late (short timeout)
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"
 
@@ -188,7 +188,7 @@ Scenario: after hooks are called, regardless of test result
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 passed"
     And the output should contain "1 failed"
@@ -217,7 +217,7 @@ Scenario: Failure in after hook
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 failed"
     And the output should contain "2 errored"
@@ -241,7 +241,7 @@ Scenario: After hooks are always run
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 1
     And the output should contain "1 failed"
     And the output should contain "first after"
@@ -268,6 +268,6 @@ Scenario: Global hooks
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "2 passed"

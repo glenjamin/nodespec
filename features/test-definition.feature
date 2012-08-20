@@ -14,7 +14,7 @@ Scenario: Normal Syntax (.example)
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -29,7 +29,7 @@ Scenario: Behaviour Syntax (.should)
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -44,6 +44,6 @@ Scenario: Short Syntax (it)
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"

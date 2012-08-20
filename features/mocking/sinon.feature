@@ -26,7 +26,7 @@ Scenario: Using the sandbox for spies
     });
     nodespec.exec();
     """
-    When I run `node sinon-spec.js`
+    When I run nodespec with "sinon-spec.js"
     Then the exit status should be 1
     And the output should contain "1 passed"
     And the output should contain "1 failed"
@@ -55,7 +55,7 @@ Scenario: Using the sandbox for mocks - automatically verified
     });
     nodespec.exec();
     """
-    When I run `node sinon-spec.js`
+    When I run nodespec with "sinon-spec.js"
     Then the exit status should be 1
     And the output should contain "1 passed"
     And the output should contain "1 failed"
@@ -76,6 +76,6 @@ Scenario: Sinon assertions work with expect()
     });
     nodespec.exec();
     """
-    When I run `node sinon-spec.js`
+    When I run nodespec with "sinon-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"

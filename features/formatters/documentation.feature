@@ -15,7 +15,7 @@ Scenario: Passing tests only
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc`
+    When I run nodespec with "basic-spec.js -f doc"
     Then the exit status should be 0
     And the output should contain:
     """
@@ -52,7 +52,7 @@ Scenario: Some failing tests
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc`
+    When I run nodespec with "basic-spec.js -f doc"
     Then the exit status should be 1
     And the output should contain:
     """
@@ -105,7 +105,7 @@ Scenario: Some pending tests
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc`
+    When I run nodespec with "basic-spec.js -f doc"
     Then the exit status should be 0
     And the output should contain:
     """
@@ -159,7 +159,7 @@ Scenario: Some errored tests
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc`
+    When I run nodespec with "basic-spec.js -f doc"
     Then the exit status should be 2
     And the output should contain:
     """
@@ -211,7 +211,7 @@ Scenario: Nested describes and contexts
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc`
+    When I run nodespec with "basic-spec.js -f doc"
     Then the exit status should be 0
     And the output should contain:
     """
@@ -243,7 +243,7 @@ Scenario: Test timing is handled by the formatter
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc`
+    When I run nodespec with "basic-spec.js -f doc"
     Then the exit status should be 0
     And the output should contain "1 spec (1 passed)"
     And the output should match /Time Taken: 3\.\d+s/
@@ -265,7 +265,7 @@ Scenario: Everything, including colour
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js -f doc --colour`
+    When I run nodespec with "basic-spec.js -f doc --colour"
     Then the exit status should be 2
     And the output should contain:
     """

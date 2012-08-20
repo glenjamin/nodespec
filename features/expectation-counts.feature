@@ -15,7 +15,7 @@ Scenario: Pending with no assertions
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 pending"
 
@@ -32,7 +32,7 @@ Scenario: Correct number of assertions
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -48,7 +48,7 @@ Scenario: Not enough assertions
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 1
     And the output should contain "1 failed"
 
@@ -65,6 +65,6 @@ Scenario: Too many assertions
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 1
     And the output should contain "1 failed"

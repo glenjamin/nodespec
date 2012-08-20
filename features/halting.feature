@@ -17,7 +17,7 @@ Scenario: --halt
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js --halt`
+    When I run nodespec with "basic-spec.js --halt"
     Then the exit status should be 1
     And the output should contain "1 spec"
     And the output should contain "1 failed"
@@ -40,7 +40,7 @@ Scenario: --halt with nested groups
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js --halt`
+    When I run nodespec with "basic-spec.js --halt"
     Then the exit status should be 1
     And the output should contain "1 spec"
     And the output should contain "1 failed"

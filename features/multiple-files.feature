@@ -31,6 +31,6 @@ Scenario: Using nodespec.require
     })
     nodespec.exec();
     """
-    When I run `node all-specs.js`
+    When I run nodespec with "all-specs.js"
     Then the exit status should be 0
     And the output should contain "2 passed"

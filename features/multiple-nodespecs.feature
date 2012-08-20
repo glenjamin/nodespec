@@ -16,7 +16,7 @@ Scenario: require('nodespec') equivalent to require('nodespec')('default')
     });
     nodespec1.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "2 passed"
 
@@ -33,7 +33,7 @@ Scenario: Calling nodespec as a function returns a new named copy
     });
     nodespec1.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -57,6 +57,6 @@ Scenario: Assert can be set differently
     });
     nodespec1.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"

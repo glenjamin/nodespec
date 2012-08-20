@@ -34,7 +34,7 @@ Scenario: Single passing spec
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -54,7 +54,7 @@ Scenario: Single failing spec
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 1
     And the output should contain "1 failed"
 
@@ -74,7 +74,7 @@ Scenario: Single pending spec
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 pending"
 
@@ -94,7 +94,7 @@ Scenario: Single erroring spec
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"
 
@@ -132,7 +132,7 @@ Scenario: Multiple specs with various results
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "4 specs"
     And the output should contain "1 passed"
@@ -155,7 +155,7 @@ Scenario: Done is never called
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"
 
@@ -175,7 +175,7 @@ Scenario: Done is called before we stop waiting
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -194,7 +194,7 @@ Scenario: Done is called after default timeout
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"
 
@@ -212,7 +212,7 @@ Scenario: Done is never called (short timeout)
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"
 
@@ -230,6 +230,6 @@ Scenario: Done is called too late (short timeout)
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 2
     And the output should contain "1 errored"

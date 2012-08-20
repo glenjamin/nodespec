@@ -18,7 +18,7 @@ Scenario: Synchronous unit under test errors
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -40,7 +40,7 @@ Scenario: Asynchronous unit under test errors
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 0
     And the output should contain "1 passed"
 
@@ -59,7 +59,7 @@ Scenario: onError is not called after assertion errors
     });
     nodespec.exec();
     """
-    When I run `node basic-spec.js`
+    When I run nodespec with "basic-spec.js"
     Then the exit status should be 1
     And the output should contain "1 failed"
     And the output should not contain "never run"
