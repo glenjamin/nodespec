@@ -71,12 +71,14 @@ Scenario: Some failing tests
       1) Dummy Tests Test 2
          // ./basic-spec.js:5
          this.assert.ok(false);
+           false == true
            expected: true
                 got: false
 
       2) Dummy Tests Test 3
          // ./basic-spec.js:8
          this.assert.strictEqual('1', 1);
+           "1" === 1
            expected: 1
                 got: '1'
 
@@ -88,6 +90,8 @@ Scenario: Some failing tests
          // ./basic-spec.js:17
          this.assert.ok(false, msg);
            But with a custom message
+           expected: true
+                got: false
     """
     And the output should contain "6 specs (2 passed, 4 failed)"
 
@@ -288,6 +292,7 @@ Scenario: Everything, including colour
     [31m  1) Progress Formatter Output Failing Test[39m
     [31m     // ./basic-spec.js:5[39m
     [31m     this.assert.equal(true, false);[39m
+    [31m       true == false[39m
     [31m       expected: false[39m
     [31m            got: true[39m
 
